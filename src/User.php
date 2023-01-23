@@ -1,6 +1,7 @@
 <?php
 
-class user
+namespace Alexs\PhpCourseProject;
+class User
 {
     public function __construct(
         private int $id,
@@ -10,15 +11,20 @@ class user
     {
     }
 
-    private function getId()
+    public function __toString()
+    {
+        return $this->name . ' ' . $this->surname;
+    }
+
+    public function getId()
     {
         return $this->id;
     }
-    private function getName()
+    public function getName()
     {
         return $this->name;
     }
-    private function getSurname()
+    public function getSurname()
     {
         return $this->surname;
     }

@@ -1,5 +1,5 @@
 {
-    "name": "alexs/php-course-project",
+    "name": "alexs/php_course-project",
     "autoload": {
         "psr-4": {
             "Alexs\\PhpCourseProject\\": "src/"
@@ -11,5 +11,7 @@
             "email": "ashilov84@ya.ru"
         }
     ],
-    "require": {}
+    "require": {
+        "fakerphp/faker": "^1.21"
+    }
 }

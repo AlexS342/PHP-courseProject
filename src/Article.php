@@ -1,28 +1,34 @@
 <?php
-
+namespace Alexs\PhpCourseProject;
 class Article
 {
     public function __construct(
         private int $id,
-        private string $idAuthor,
-        private int $header,
+        private int $idAuthor,
+        private string $header,
         private string $text
     )
     {
     }
-    private function getId()
+
+    public function __toString()
+    {
+        return $this->header . ' >>> ' . $this->text;
+    }
+
+    public function getId()
     {
         return $this->id;
     }
-    private function getIdAuthor()
+    public function getIdAuthor()
     {
         return $this->idAuthor;
     }
-    private function getHeader()
+    public function getHeader()
     {
         return $this->header;
     }
-    private function getText()
+    public function getText()
     {
         return $this->text;
     }

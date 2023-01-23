@@ -1,30 +1,37 @@
 <?php
 
+namespace Alexs\PhpCourseProject;
 class Commit
 {
     public function __construct(
         private int $id,
-        private string $idAuthor,
+        private int $idAuthor,
         private int $idArticle,
         private string $text
     )
     {
     }
 
-    private function getId()
-    {
-        return $this->id;
-    }
-    private function getIdAuthor()
-    {
-        return $this->idAuthor;
-    }
-    private function getIdArticle()
-    {
-        return $this->idArticle;
-    }
-    private function getText()
+    public function __toString()
     {
         return $this->text;
     }
+
+    public function getId()
+    {
+        return $this->id;
+    }
+    public function getIdAuthor()
+    {
+        return $this->idAuthor;
+    }
+    public function getIdArticle()
+    {
+        return $this->idArticle;
+    }
+    public function getText()
+    {
+        return $this->text;
+    }
+
 }
