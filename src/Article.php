@@ -16,19 +16,19 @@ class Article
         return $this->header . ' >>> ' . $this->text;
     }
 
-    public function getId()
+    public function getId() :int
     {
         return $this->id;
     }
-    public function getIdAuthor()
+    public function getIdAuthor() :int
     {
         return $this->idAuthor;
     }
-    public function getHeader()
+    public function getHeader() :string
     {
         return $this->header;
     }
-    public function getText()
+    public function getText() :string
     {
         return $this->text;
     }

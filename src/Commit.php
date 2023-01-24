@@ -17,19 +17,19 @@ class Commit
         return $this->text;
     }
 
-    public function getId()
+    public function getId() :int
     {
         return $this->id;
     }
-    public function getIdAuthor()
+    public function getIdAuthor() :int
     {
         return $this->idAuthor;
     }
-    public function getIdArticle()
+    public function getIdArticle() :int
     {
         return $this->idArticle;
     }
-    public function getText()
+    public function getText() :string
     {
         return $this->text;
     }
