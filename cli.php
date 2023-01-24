@@ -13,7 +13,7 @@ if($argv[1] === 'user'){
     print $user . PHP_EOL;
 }
 if($argv[1] === 'post'){
-    $post = new Article($faker->randomDigitNotNull, $faker->randomDigitNotNull, $faker->text(30), $faker->text(200));
+    $post = new Article($faker->randomDigitNotNull, $faker->randomDigitNotNull, $faker->text(30), $faker->text());
     print $post . PHP_EOL;
 }
 if($argv[1] === 'commit'){
