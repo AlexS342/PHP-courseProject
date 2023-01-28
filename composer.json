@@ -1,8 +1,8 @@
 {
-    "name": "alexs/php_course-project",
+    "name": "alexs/php_advanced",
     "autoload": {
         "psr-4": {
-            "Alexs\\PhpCourseProject\\": "src/"
+            "Alexs\\PhpAdvanced\\": "src/"
         }
     },
     "authors": [
@@ -12,6 +12,8 @@
         }
     ],
     "require": {
-        "fakerphp/faker": "^1.21"
+        "php": ">=8.0",
+        "fakerphp/faker": "^1.21",
+        "roave/security-advisories": "dev-latest"
     }
 }
