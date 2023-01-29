@@ -47,26 +47,29 @@ for($i = 1; $i <= 10; $i++){
 }
 
 try {
+    if(!isset($argv[1])){
+        throw new ArgvIdNotArgumentException("Error: Неуказана запрашиваемая сущность");
+    }
+
     if(isset($argv[2]) && (int)$argv[2] > 0){
         $id = (int) $argv[2];
     }else{
-        throw new ArgvIdNotArgumentException("Отсутствует или неправильно указан id запрашиваемой сущности");
+        throw new ArgvIdNotArgumentException("Error: Отсутствует или неправильно указан id запрашиваемой сущности");
     }
     echo match ($argv[1]) {
         'user' => $userRepository->get($id) . PHP_EOL,
         'post' => $postRepository->get($id) . PHP_EOL,
         'commit' => $commitRepository->get($id) . PHP_EOL,
-        default => "Введены неправильные параметры",
+        default => throw new ArgvIdNotArgumentException("Error: Запрашивается несуществующая сущность"),
     };
 } catch (AppException | Exception $e) {
-    echo "error switch" . PHP_EOL;
     echo $e->getMessage() . PHP_EOL;
 }
 
-echo "";
+echo " " . PHP_EOL;
 echo "Инструкция:" . PHP_EOL;
 echo "Команты для запуска приложения:" . PHP_EOL;
-echo "php cli.php [(string)тип сущности] [(int)id сущности]";
+echo "php cli.php [(string)тип сущности] [(int)id сущности]" . PHP_EOL;
 echo "Пример для получения пользователя: ";
 echo "php cli.php user 4" . PHP_EOL;
 echo "Типы сущностей: user, post, commit" . PHP_EOL;

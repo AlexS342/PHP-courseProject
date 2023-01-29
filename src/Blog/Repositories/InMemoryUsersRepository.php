@@ -33,6 +33,6 @@ class InMemoryUsersRepository
                 return $user;
             }
         }
-        throw new UserNotFoundException("User not found $id");
+        throw new UserNotFoundException("Error: User not found $id");
     }
 }

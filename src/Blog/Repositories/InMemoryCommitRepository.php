@@ -33,6 +33,6 @@ class InMemoryCommitRepository
                 return $commit;
             }
         }
-        throw new CommitNotFoundException("Commit not found $id");
+        throw new CommitNotFoundException("Error: Commit not found $id");
     }
 }

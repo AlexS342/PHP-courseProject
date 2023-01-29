@@ -33,6 +33,6 @@ class InMemoriPostRepository
                 return $post;
             }
         }
-        throw new PostNotFoundException("Post not found $id");
+        throw new PostNotFoundException("Error: Post not found $id");
     }
 }
