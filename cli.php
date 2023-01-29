@@ -52,23 +52,22 @@ try {
     }else{
         throw new ArgvIdNotArgumentException("Отсутствует или неправильно указан id запрашиваемой сущности");
     }
-    switch ($argv[1]){
-        case 'user':
-            echo 'User' . PHP_EOL;
-            echo $userRepository->get($id) . PHP_EOL;
-            break;
-        case 'post':
-            echo 'Post' . PHP_EOL;
-            echo $postRepository->get($id) . PHP_EOL;
-            break;
-        case 'commit':
-            echo 'Commit' . PHP_EOL;
-            echo $commitRepository->get($id) . PHP_EOL;
-            break;
-        default:
-            echo "Введены неправильные параметры";
-    }
+    echo match ($argv[1]) {
+        'user' => $userRepository->get($id) . PHP_EOL,
+        'post' => $postRepository->get($id) . PHP_EOL,
+        'commit' => $commitRepository->get($id) . PHP_EOL,
+        default => "Введены неправильные параметры",
+    };
 } catch (AppException | Exception $e) {
     echo "error switch" . PHP_EOL;
     echo $e->getMessage() . PHP_EOL;
 }
+
+echo "";
+echo "Инструкция:" . PHP_EOL;
+echo "Команты для запуска приложения:" . PHP_EOL;
+echo "php cli.php [(string)тип сущности] [(int)id сущности]";
+echo "Пример для получения пользователя: ";
+echo "php cli.php user 4" . PHP_EOL;
+echo "Типы сущностей: user, post, commit" . PHP_EOL;
+echo "id сущностей: от 1 до 10" . PHP_EOL;
