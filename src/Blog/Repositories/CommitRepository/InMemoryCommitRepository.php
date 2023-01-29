@@ -1,6 +1,6 @@
 <?php
 
-namespace Alexs\PhpAdvanced\Blog\Repositories;
+namespace Alexs\PhpAdvanced\Blog\Repositories\CommitRepository;
 
 use Alexs\PhpAdvanced\Blog\Exceptions\CommitNotFoundException;
 use Alexs\PhpAdvanced\Blog\Commit;

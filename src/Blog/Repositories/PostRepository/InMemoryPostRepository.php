@@ -1,11 +1,11 @@
 <?php
 
-namespace Alexs\PhpAdvanced\Blog\Repositories;
+namespace Alexs\PhpAdvanced\Blog\Repositories\PostRepository;
 
 use Alexs\PhpAdvanced\Blog\Exceptions\PostNotFoundException;
 use Alexs\PhpAdvanced\Blog\Post;
 
-class InMemoriPostRepository
+class InMemoryPostRepository
 {
     /**
      * @var array
