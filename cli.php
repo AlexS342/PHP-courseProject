@@ -22,51 +22,57 @@
 
 use Alexs\PhpAdvanced\Blog\Commands\Arguments;
 use Alexs\PhpAdvanced\Blog\Commands\CreateUserCommand;
-use Alexs\PhpAdvanced\Blog\Exceptions\CommandException;
 use Alexs\PhpAdvanced\Blog\Post;
+use Alexs\PhpAdvanced\Blog\Repositories\CommitRepository\SQLiteCommitRepository;
+use Alexs\PhpAdvanced\Blog\Repositories\PostRepository\SQLitePostRepository;
 use Alexs\PhpAdvanced\Blog\User;
 use Alexs\PhpAdvanced\Blog\Commit;
 use Alexs\PhpAdvanced\Blog\Repositories\UserRepository\InMemoryUsersRepository;
 use Alexs\PhpAdvanced\Blog\Repositories\PostRepository\InMemoryPostRepository;
 use Alexs\PhpAdvanced\Blog\Repositories\CommitRepository\InMemoryCommitRepository;
 use Alexs\PhpAdvanced\Blog\Repositories\UserRepository\SQLiteUserRepository;
-use Alexs\PhpAdvanced\Blog\Exceptions\ArgvIdNotArgumentException;
-use Alexs\PhpAdvanced\Blog\Exceptions\AppException;
 use Alexs\PhpAdvanced\Blog\UUID;
-use Alexs\PhpAdvanced\Blog\Exceptions\InvalidArgumentException;
 
 require_once __DIR__ . '/vendor/autoload.php';
 
 $connect = include 'sqlite.php';
-$userRepositorySQL = new SQLiteUserRepository($connect);
-
-//$userRepository = new InMemoryUsersRepository();
-//$postRepository = new InMemoryPostRepository();
-//$commitRepository = new InMemoryCommitRepository();
-
-//$faker = Faker\Factory :: create ('ru_RU');
-
-//$user = new User(UUID::random(), $faker->firstName(), $faker->lastName, $faker->userName(), $faker->password);
-//$userRepositorySQL->save($user);
-//try {
-//    echo $userRepositorySQL->get(new UUID('c9b0925a-0ff3-4aa1-93d9-b942a11bfbba')) . PHP_EOL;
-//}catch (Exception $e){
-//    echo $e->getMessage() . PHP_EOL;
-//}
-//try {
-//    echo $userRepositorySQL->getByUsername('elena73') . PHP_EOL;
-//}catch (Exception $e){
-//    echo $e->getMessage() . PHP_EOL;
-//}
-
-$command = new CreateUserCommand($userRepositorySQL);
 
 try {
+    $userRepositorySQL = new SQLiteUserRepository($connect);
+    $postRepositorySQL = new SQLitePostRepository($connect);
+    $commitRepositorySQL = new SQLiteCommitRepository($connect);
+
+    $userRepository = new InMemoryUsersRepository();
+    $postRepository = new InMemoryPostRepository();
+    $commitRepository = new InMemoryCommitRepository();
+
+    $faker = Faker\Factory :: create ('ru_RU');
+
+    $user = new User(UUID::random(), $faker->firstName(), $faker->lastName, $faker->userName(), $faker->password);
+    $post = new Post(UUID::random(), $user, $faker->realText(rand(50, 70)), $faker->realText(rand(150, 300)));
+    $commit = new Commit(UUID::random(), $user, $post, $faker->realText(rand(150, 300)));
+
+    $userRepositorySQL->save($user);
+    $postRepositorySQL->save($post);
+    $commitRepositorySQL->save($commit);
+
+    echo $userRepositorySQL->get(new UUID('ebf6a074-598d-4a28-b1f2-deaa8b380c31')) . PHP_EOL;
+    echo $postRepositorySQL->get(new UUID('8610d66d-fe5f-41a5-ae19-6382ba09255a')) . PHP_EOL;
+    echo $commitRepositorySQL->get(new UUID('89d83c5c-0445-45ce-a0a6-de4d7455e885')) . PHP_EOL;
+
+    //Работа через терминал (пока только для юзера)
+    $command = new CreateUserCommand($userRepositorySQL);
     $command->handle(Arguments::fromArgv($argv));
+
+}catch (Exception $e){
+    echo $e->getMessage() . PHP_EOL;
 }
-catch (AppException $e) {
-    echo "{$e->getMessage()}\n";
-}
+
+
+
+
+
+
 
 
 

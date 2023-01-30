@@ -4,8 +4,9 @@ namespace Alexs\PhpAdvanced\Blog\Repositories\PostRepository;
 
 use Alexs\PhpAdvanced\Blog\Exceptions\PostNotFoundException;
 use Alexs\PhpAdvanced\Blog\Post;
+use Alexs\PhpAdvanced\Blog\UUID;
 
-class InMemoryPostRepository
+class InMemoryPostRepository implements PostRepositoryInterface
 {
     /**
      * @var array
@@ -22,17 +23,17 @@ class InMemoryPostRepository
     }
 
     /**
-     * @param int $id
+     * @param UUID $uuid
      * @return Post
      * @throws PostNotFoundException
      */
-    public function get(int $id): Post
+    public function get(UUID $uuid): Post
     {
         foreach ($this->posts as $post){
-            if($post->getId() === $id){
+            if($post->getUuid() === $uuid){
                 return $post;
             }
         }
-        throw new PostNotFoundException("Error: Post not found $id");
+        throw new PostNotFoundException("Error: Post not found $uuid");
     }
 }

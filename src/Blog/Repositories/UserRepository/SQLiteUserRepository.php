@@ -64,11 +64,7 @@ class SQLiteUserRepository implements UserRepositoryInterface
             "SELECT * FROM users WHERE username = :username"
         );
         $statement->execute(['username' => $username]);
-//        $result = $statement->fetch(PDO::FETCH_ASSOC);
-//        if($result===false){
-//            throw new UserNotFoundException("Такого пользователя нет в базе данных");
-//        }
-//        return new User(new UUID($result['uuid']), $result['firstName'], $result['lastName'], $result['username'], $result['password'], );
+
         return $this->createUser($statement, $username);
     }
 

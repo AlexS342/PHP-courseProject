@@ -4,22 +4,25 @@ $connect = include 'sqlite.php';
 
 $connect->exec('CREATE TABLE users (
     uuid VARCHAR(40) NOT NULL PRIMARY KEY UNIQUE,
-    username VARCHAR(100) NOT NULL UNIQUE,
-    firstName VARCHAR(100),
-    lastName VARCHAR(100),
-    password VARCHAR(100) NOT NULL
+    username VARCHAR(30) NOT NULL UNIQUE,
+    firstName VARCHAR(30) NOT NULL,
+    lastName VARCHAR(30) NOT NULL,
+    password VARCHAR(30) NOT NULL
 )');
 
-//$pdo->exec('CREATE TABLE tasks (
-//  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-//  description VARCHAR(300),
-//  priority INTEGER NOT NULL,
-//  isDone INTEGER NOT NULL,
-//  dateCreated VARCHAR(100) NOT NULL,
-//  dateUpdated VARCHAR(100) NOT NULL,
-//  dateDone VARCHAR(100),
-//  userId INTEGER NOT NULL
-//)');
+$connect->exec('CREATE TABLE posts (
+    uuid VARCHAR(40) NOT NULL PRIMARY KEY UNIQUE,
+    uuidAuthor VARCHAR(40) NOT NULL,
+    header TEXT NOT NULL,
+    text TEXT NOT NULL
+)');
+
+$connect->exec('CREATE TABLE comments (
+    uuid VARCHAR(40) NOT NULL PRIMARY KEY UNIQUE,
+    uuidAuthor VARCHAR(40) NOT NULL,
+    uuidPost VARCHAR(40) NOT NULL,
+    text TEXT NOT NULL
+)');
 
 //Пример запроса на добавление задачи
 /*
