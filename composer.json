@@ -1,0 +1,19 @@
+{
+    "name": "alexs/php_advanced",
+    "autoload": {
+        "psr-4": {
+            "Alexs\\PhpAdvanced\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "AlexS",
+            "email": "ashilov84@ya.ru"
+        }
+    ],
+    "require": {
+        "php": ">=8.0",
+        "fakerphp/faker": "^1.21",
+        "roave/security-advisories": "dev-latest"
+    }
+}
