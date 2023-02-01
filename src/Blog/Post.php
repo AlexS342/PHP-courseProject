@@ -5,13 +5,13 @@ namespace Alexs\PhpAdvanced\Blog;
 class Post
 {
     /**
-     * @param int $id
+     * @param UUID $uuid
      * @param User $author
      * @param string $header
      * @param string $text
      */
     public function __construct(
-        private int $id,
+        private UUID $uuid,
         private User $author,
         private string $header,
         private string $text
@@ -26,22 +26,20 @@ class Post
     }
 
     /**
-     * @return int
+     * @return UUID
      */
-    public function getId(): int
+    public function getUuid(): UUID
     {
-        return $this->id;
+        return $this->uuid;
     }
 
     /**
-     * @param int $id
-     * @return void
+     * @param UUID $uuid
      */
-    public function setId(int $id): void
+    public function setUuid(UUID $uuid): void
     {
-        $this->id = $id;
+        $this->uuid = $uuid;
     }
-
 
     /**
      * @return User
@@ -53,7 +51,6 @@ class Post
 
     /**
      * @param User $author
-     * @return void
      */
     public function setAuthor(User $author): void
     {
@@ -70,7 +67,6 @@ class Post
 
     /**
      * @param string $header
-     * @return void
      */
     public function setHeader(string $header): void
     {
@@ -87,11 +83,12 @@ class Post
 
     /**
      * @param string $text
-     * @return void
      */
     public function setText(string $text): void
     {
         $this->text = $text;
     }
+
+
 
 }

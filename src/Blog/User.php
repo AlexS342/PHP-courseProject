@@ -5,24 +5,58 @@ namespace Alexs\PhpAdvanced\Blog;
 class User
 {
     public function __construct(
-        private int $id,
+        private UUID $uuid,
+        private string $firstName,
+        private string $lastName,
         private string $username,
-        private string $login
+        private string $password
     )
     {
 
     }
     public function __toString(): string
     {
-        return 'Пользователь ' . $this->id . ' с именем ' . $this->username . ' и логином ' . $this->login;
+        return 'Пользователь ' . $this->uuid . ' с именем ' . $this->firstName . ' ' . $this->lastName . ' и логином ' . $this->username;
     }
 
     /**
-     * @return int
+     * @return UUID
      */
-    public function getId(): int
+    public function getUuid(): UUID
     {
-        return $this->id;
+        return $this->uuid;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFirstName(): string
+    {
+        return $this->firstName;
+    }
+
+    /**
+     * @param string $firstName
+     */
+    public function setFirstName(string $firstName): void
+    {
+        $this->firstName = $firstName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLastName(): string
+    {
+        return $this->lastName;
+    }
+
+    /**
+     * @param string $lastName
+     */
+    public function setLastName(string $lastName): void
+    {
+        $this->lastName = $lastName;
     }
 
     /**
@@ -34,22 +68,6 @@ class User
     }
 
     /**
-     * @return string
-     */
-    public function getLogin(): string
-    {
-        return $this->login;
-    }
-
-    /**
-     * @param int $id
-     */
-    public function setId(int $id): void
-    {
-        $this->id = $id;
-    }
-
-    /**
      * @param string $username
      */
     public function setUsername(string $username): void
@@ -58,11 +76,20 @@ class User
     }
 
     /**
-     * @param string $login
+     * @return string
      */
-    public function setLogin(string $login): void
+    public function getPassword(): string
     {
-        $this->login = $login;
+        return $this->password;
     }
+
+    /**
+     * @param string $password
+     */
+    public function setPassword(string $password): void
+    {
+        $this->password = $password;
+    }
+
 
 }
