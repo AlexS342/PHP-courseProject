@@ -14,8 +14,15 @@
     "require": {
         "php": ">=8.0",
         "fakerphp/faker": "^1.21",
-        "roave/security-advisories": "dev-latest",
+
       "ext-pdo": "*",
         "symfony/polyfill-uuid": "^1.27"
+    },
+    "require-dev": {
+        "roave/security-advisories": "dev-latest",
+        "phpunit/phpunit": "^9.5"
+    },
+    "scripts": {
+        "test": "phpunit tests --testdox --colors"
     }
 }
