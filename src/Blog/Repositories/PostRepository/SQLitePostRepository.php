@@ -35,6 +35,7 @@ class SQLitePostRepository implements PostRepositoryInterface
     /**
      * @throws InvalidArgumentException
      * @throws PostNotFoundException
+     * @throws UserNotFoundException
      */
     public function get(UUID $uuid):Post
     {
