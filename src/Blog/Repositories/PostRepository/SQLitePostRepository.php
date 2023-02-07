@@ -49,8 +49,7 @@ class SQLitePostRepository implements PostRepositoryInterface
 
     /**
      * @throws PostNotFoundException
-     * @throws InvalidArgumentException
-     * @throws UserNotFoundException
+     * @throws InvalidArgumentException|UserNotFoundException
      */
     private function createPost(PDOStatement $statement, $data):Post
     {
@@ -63,5 +62,11 @@ class SQLitePostRepository implements PostRepositoryInterface
         $user = $userRepository->get(new UUID($result['uuidAuthor']));
 
         return new Post(new UUID($result['uuid']), $user, $result['header'], $result['text'] );
+    }
+
+    private function delete (UUID $uuid):void
+    {
+        $statement = $this->connect->prepare("DELETE FROM posts WHERE 'uuid' = :uuid");
+        $statement->execute(['uuid' => (string)$uuid]);
     }
 }

@@ -9,6 +9,7 @@ use Alexs\PhpAdvanced\Http\Actions\Commits\FindCommitByUuid;
 use Alexs\PhpAdvanced\Http\Actions\Posts\CreatePost;
 use Alexs\PhpAdvanced\Http\Actions\Posts\FindPostByUuid;
 use Alexs\PhpAdvanced\Http\Actions\Users\CreateUser;
+use Alexs\PhpAdvanced\Http\Actions\Users\DeleteByUuid;
 use Alexs\PhpAdvanced\Http\Actions\Users\FindByUsername;
 use Alexs\PhpAdvanced\Http\ErrorResponse;
 use Alexs\PhpAdvanced\Http\Request;
@@ -89,6 +90,23 @@ $routes = [
             )
         ),
     ],
+    'DELETE' => [
+        '/user' => new DeleteByUuid(
+            new SQLiteUserRepository(
+                new PDO('sqlite:' . __DIR__ . '/blog.sqlite')
+            )
+        ),
+        '/post' => new DeleteByUuid(
+            new SQLiteUserRepository(
+                new PDO('sqlite:' . __DIR__ . '/blog.sqlite')
+            )
+        ),
+        '/commit' => new DeleteByUuid(
+            new SQLiteUserRepository(
+                new PDO('sqlite:' . __DIR__ . '/blog.sqlite')
+            )
+        )
+    ]
 ];
 // Если у нас нет маршрутов для метода запроса -
 // возвращаем неуспешный ответ
