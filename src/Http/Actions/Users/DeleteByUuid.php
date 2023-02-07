@@ -38,7 +38,7 @@ class DeleteByUuid implements ActionInterface
 
         try {
             // Пытаемся найти пользователя в репозитории
-            $this->usersRepository->delete($uuid);
+            $this->usersRepository->delete((string)$uuid);
         } catch (UserNotFoundException $e) {
             // Если пользователь не найден - возвращаем неуспешный ответ
             return new ErrorResponse($e->getMessage());

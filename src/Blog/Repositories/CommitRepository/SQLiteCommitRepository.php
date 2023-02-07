@@ -77,9 +77,9 @@ class SQLiteCommitRepository implements CommitRepositoryInterface
         return new Commit(new UUID($result['uuid']), $user, $post, $result['text']);
     }
 
-    private function delete (UUID $uuid):void
+    public function delete (string $uuid):void
     {
-        $statement = $this->connect->prepare("DELETE FROM comments WHERE 'uuid' = :uuid");
-        $statement->execute(['uuid' => (string)$uuid]);
+        $statement = $this->connect->prepare("DELETE FROM comments WHERE 'uuid' = :commitUuid");
+        $x = $statement->execute([':commitUuid' => $uuid]);
     }
 }

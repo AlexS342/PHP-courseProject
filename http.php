@@ -5,8 +5,10 @@ use Alexs\PhpAdvanced\Blog\Repositories\CommitRepository\SQLiteCommitRepository;
 use Alexs\PhpAdvanced\Blog\Repositories\PostRepository\SQLitePostRepository;
 use Alexs\PhpAdvanced\Blog\Repositories\UserRepository\SQLiteUserRepository;
 use Alexs\PhpAdvanced\Http\Actions\Commits\CreateCommit;
+use Alexs\PhpAdvanced\Http\Actions\Commits\DeleteCommitByUuid;
 use Alexs\PhpAdvanced\Http\Actions\Commits\FindCommitByUuid;
 use Alexs\PhpAdvanced\Http\Actions\Posts\CreatePost;
+use Alexs\PhpAdvanced\Http\Actions\Posts\DeletePostByUuid;
 use Alexs\PhpAdvanced\Http\Actions\Posts\FindPostByUuid;
 use Alexs\PhpAdvanced\Http\Actions\Users\CreateUser;
 use Alexs\PhpAdvanced\Http\Actions\Users\DeleteByUuid;
@@ -27,25 +29,21 @@ $request = new Request(
 );
 
 try {
+    //Получаем путь
     $path = $request->path();
 } catch (HttpException) {
     (new ErrorResponse)->send();
     return;
 }
 try {
-// Пытаемся получить HTTP-метод запроса
+    // Пытаемся получить HTTP-метод запроса
     $method = $request->method();
 } catch (HttpException) {
-// Возвращаем неудачный ответ,
-// если по какой-то причине
-// не можем получить метод
+    // Возвращаем неудачный ответ, если по какой-то причине не можем получить метод
     (new ErrorResponse)->send();
     return;
 }
 $routes = [
-// Добавили ещё один уровень вложенности
-// для отделения маршрутов,
-// применяемых к запросам с разными методами
     'GET' => [
         '/users/show' => new FindByUsername(
             new SQLiteUserRepository(
@@ -64,7 +62,6 @@ $routes = [
         ),
     ],
     'POST' => [
-// Добавили новый маршрут
         '/user/create' => new CreateUser(
             new SQLiteUserRepository(
                 new PDO('sqlite:' . __DIR__ . '/blog.sqlite')
@@ -96,20 +93,19 @@ $routes = [
                 new PDO('sqlite:' . __DIR__ . '/blog.sqlite')
             )
         ),
-        '/post' => new DeleteByUuid(
-            new SQLiteUserRepository(
+        '/post' => new DeletePostByUuid(
+            new SQLitePostRepository(
                 new PDO('sqlite:' . __DIR__ . '/blog.sqlite')
             )
         ),
-        '/commit' => new DeleteByUuid(
-            new SQLiteUserRepository(
+        '/commit' => new DeleteCommitByUuid(
+            new SQLiteCommitRepository(
                 new PDO('sqlite:' . __DIR__ . '/blog.sqlite')
             )
         )
     ]
 ];
-// Если у нас нет маршрутов для метода запроса -
-// возвращаем неуспешный ответ
+// Если у нас нет маршрутов для метода запроса - возвращаем неуспешный ответ
 if (!array_key_exists($method, $routes)) {
     (new ErrorResponse('Not found'))->send();
     return;

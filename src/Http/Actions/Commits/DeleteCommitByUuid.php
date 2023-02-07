@@ -1,34 +1,33 @@
 <?php
 
-namespace Alexs\PhpAdvanced\Http\Actions\Posts;
+namespace Alexs\PhpAdvanced\Http\Actions\Commits;
 
+use Alexs\PhpAdvanced\Blog\Exceptions\CommitNotFoundException;
 use Alexs\PhpAdvanced\Blog\Exceptions\HttpException;
 use Alexs\PhpAdvanced\Blog\Exceptions\InvalidArgumentException;
-use Alexs\PhpAdvanced\Blog\Exceptions\PostNotFoundException;
+use Alexs\PhpAdvanced\Blog\Repositories\CommitRepository\CommitRepositoryInterface;
 use Alexs\PhpAdvanced\Blog\UUID;
-use Alexs\PhpAdvanced\Http\Response;
 use Alexs\PhpAdvanced\Http\Request;
-use Alexs\PhpAdvanced\Http\SuccessfulResponse;
+use Alexs\PhpAdvanced\Http\Response;
 use Alexs\PhpAdvanced\Http\ErrorResponse;
-use Alexs\PhpAdvanced\Blog\Repositories\PostRepository\PostRepositoryInterface;
+use Alexs\PhpAdvanced\Http\SuccessfulResponse;
 use Alexs\PhpAdvanced\Http\Actions\ActionInterface;
 
-class FindPostByUuid implements ActionInterface
+class DeleteCommitByUuid  implements ActionInterface
 {
-// Нам понадобится репозиторий пользователей,
+    // Нам понадобится репозиторий пользователей,
     // внедряем его контракт в качестве зависимости
     public function __construct(
-        private PostRepositoryInterface $postRepository
+        private CommitRepositoryInterface $commitRepository
     ) {
     }
-
     // Функция, описанная в контракте
     public function handle(Request $request): Response
     {
         try {
             // Пытаемся получить искомое имя пользователя из запроса
-            $uuid = $request->query('uuid');
-        } catch (HttpException $e) {
+            $uuid = new UUID($request->query('uuid'));
+        } catch (HttpException | InvalidArgumentException $e) {
             // Если в запросе нет параметра username -
             // возвращаем неуспешный ответ,
             // сообщение об ошибке берём из описания исключения
@@ -36,16 +35,15 @@ class FindPostByUuid implements ActionInterface
         }
         try {
             // Пытаемся найти пользователя в репозитории
-            $post = $this->postRepository->get(new UUID($uuid));
-            // Возвращаем успешный ответ
-            return new SuccessfulResponse([
-                'username' => $post->getAuthor()->getUsername(),
-                'header' => $post->getHeader(),
-                'text' => $post->getText()
-            ]);
-        } catch (PostNotFoundException $e) {
+//            $commit = $this->commitRepository->delete(new UUID($uuid));
+            $this->commitRepository->delete((string)$uuid);
+        } catch (CommitNotFoundException | InvalidArgumentException $e) {
             // Если пользователь не найден - возвращаем неуспешный ответ
             return new ErrorResponse($e->getMessage());
         }
+        // Возвращаем успешный ответ
+        return new SuccessfulResponse([
+            'uuid' => (string)$uuid
+        ]);
     }
 }

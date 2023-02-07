@@ -13,10 +13,9 @@ use Alexs\PhpAdvanced\Http\ErrorResponse;
 use Alexs\PhpAdvanced\Blog\Repositories\PostRepository\PostRepositoryInterface;
 use Alexs\PhpAdvanced\Http\Actions\ActionInterface;
 
-class FindPostByUuid implements ActionInterface
+class DeletePostByUuid implements ActionInterface
 {
-// Нам понадобится репозиторий пользователей,
-    // внедряем его контракт в качестве зависимости
+    // Нам понадобится репозиторий пользователей, внедряем его контракт в качестве зависимости
     public function __construct(
         private PostRepositoryInterface $postRepository
     ) {
@@ -27,23 +26,19 @@ class FindPostByUuid implements ActionInterface
     {
         try {
             // Пытаемся получить искомое имя пользователя из запроса
-            $uuid = $request->query('uuid');
-        } catch (HttpException $e) {
-            // Если в запросе нет параметра username -
-            // возвращаем неуспешный ответ,
-            // сообщение об ошибке берём из описания исключения
+            $uuid = new UUID($request->query('uuid'));
+        } catch (HttpException | InvalidArgumentException $e) {
+            // Если в запросе нет параметра username - возвращаем неуспешный ответ, сообщение об ошибке берём из описания исключения
             return new ErrorResponse($e->getMessage());
         }
         try {
             // Пытаемся найти пользователя в репозитории
-            $post = $this->postRepository->get(new UUID($uuid));
+            $this->postRepository->delete(new UUID($uuid));
             // Возвращаем успешный ответ
             return new SuccessfulResponse([
-                'username' => $post->getAuthor()->getUsername(),
-                'header' => $post->getHeader(),
-                'text' => $post->getText()
+                'uuid' => (string)$uuid
             ]);
-        } catch (PostNotFoundException $e) {
+        } catch (PostNotFoundException | InvalidArgumentException $e) {
             // Если пользователь не найден - возвращаем неуспешный ответ
             return new ErrorResponse($e->getMessage());
         }
