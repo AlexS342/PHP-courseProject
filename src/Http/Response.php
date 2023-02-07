@@ -2,11 +2,17 @@
 
 namespace Alexs\PhpAdvanced\Http;
 
+use JsonException;
+
 abstract class Response
 {
 // Маркировка успешности ответа
     protected const SUCCESS = true;
 // Метод для отправки ответа
+
+    /**
+     * @throws JsonException
+     */
     public function send(): void
     {
         // Данные ответа:

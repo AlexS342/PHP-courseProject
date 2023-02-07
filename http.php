@@ -1,9 +1,14 @@
 <?php
 
 use Alexs\PhpAdvanced\Blog\Exceptions\AppException;
+use Alexs\PhpAdvanced\Blog\Repositories\CommitRepository\SQLiteCommitRepository;
 use Alexs\PhpAdvanced\Blog\Repositories\PostRepository\SQLitePostRepository;
 use Alexs\PhpAdvanced\Blog\Repositories\UserRepository\SQLiteUserRepository;
+use Alexs\PhpAdvanced\Http\Actions\Commits\CreateCommit;
+use Alexs\PhpAdvanced\Http\Actions\Commits\FindCommitByUuid;
 use Alexs\PhpAdvanced\Http\Actions\Posts\CreatePost;
+use Alexs\PhpAdvanced\Http\Actions\Posts\FindPostByUuid;
+use Alexs\PhpAdvanced\Http\Actions\Users\CreateUser;
 use Alexs\PhpAdvanced\Http\Actions\Users\FindByUsername;
 use Alexs\PhpAdvanced\Http\ErrorResponse;
 use Alexs\PhpAdvanced\Http\Request;
@@ -46,15 +51,36 @@ $routes = [
                 new PDO('sqlite:' . __DIR__ . '/blog.sqlite')
             )
         ),
-//        '/posts/show' => new FindByUuid(
-//            new SQLitePostRepository(
-//                new PDO('sqlite:' . __DIR__ . '/blog.sqlite')
-//            )
-//        ),
+        '/posts/show' => new FindPostByUuid(
+            new SQLitePostRepository(
+                new PDO('sqlite:' . __DIR__ . '/blog.sqlite')
+            )
+        ),
+        '/commit/show' => new FindCommitByUuid(
+            new SQLiteCommitRepository(
+                new PDO('sqlite:' . __DIR__ . '/blog.sqlite')
+            )
+        ),
     ],
     'POST' => [
 // Добавили новый маршрут
+        '/user/create' => new CreateUser(
+            new SQLiteUserRepository(
+                new PDO('sqlite:' . __DIR__ . '/blog.sqlite')
+            )
+        ),
         '/posts/create' => new CreatePost(
+            new SQLitePostRepository(
+                new PDO('sqlite:' . __DIR__ . '/blog.sqlite')
+            ),
+            new SQLiteUserRepository(
+                new PDO('sqlite:' . __DIR__ . '/blog.sqlite')
+            )
+        ),
+        '/commit/create' => new CreateCommit(
+            new SQLiteCommitRepository(
+                new PDO('sqlite:' . __DIR__ . '/blog.sqlite')
+            ),
             new SQLitePostRepository(
                 new PDO('sqlite:' . __DIR__ . '/blog.sqlite')
             ),

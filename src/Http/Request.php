@@ -17,6 +17,9 @@ class Request
     ) {
     }
 
+    /**
+     * @throws HttpException
+     */
     public function method(): string
     {
         // В суперглобальном массиве $_SERVER
@@ -31,6 +34,10 @@ class Request
     // Метод для получения массива,
     // сформированного из json-форматированного
     // тела запроса
+    /**
+     * @throws \JsonException
+     * @throws HttpException
+     */
     public function jsonBody(): array
     {
         try {
@@ -53,6 +60,10 @@ class Request
 
     // Метод для получения отдельного поля
     // из json-форматированного тела запроса
+    /**
+     * @throws \JsonException
+     * @throws HttpException
+     */
     public function jsonBodyField(string $field): mixed
     {
         $data = $this->jsonBody();
