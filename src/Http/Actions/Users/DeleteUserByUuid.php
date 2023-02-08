@@ -16,7 +16,7 @@ use Alexs\PhpAdvanced\Blog\Repositories\UserRepository\UserRepositoryInterface;
 
 
 
-class DeleteByUuid implements ActionInterface
+class DeleteUserByUuid implements ActionInterface
 {
     // Нам понадобится репозиторий пользователей,
     // внедряем его контракт в качестве зависимости
@@ -30,6 +30,7 @@ class DeleteByUuid implements ActionInterface
         try {
             // Пытаемся получить искомое имя пользователя из запроса
             $uuid = new UUID($request->query('uuid'));
+            $this->usersRepository->get($uuid);
         } catch (HttpException |InvalidArgumentException $e) {
             // Если в запросе нет параметра username - возвращаем неуспешный ответ,
             // сообщение об ошибке берём из описания исключения
@@ -38,14 +39,15 @@ class DeleteByUuid implements ActionInterface
 
         try {
             // Пытаемся найти пользователя в репозитории
-            $this->usersRepository->delete((string)$uuid);
+            $this->usersRepository->delete($uuid);
+            // Возвращаем успешный ответ
+            return new SuccessfulResponse([
+                'uuid' => $uuid->getUuidString(),
+            ]);
         } catch (UserNotFoundException $e) {
             // Если пользователь не найден - возвращаем неуспешный ответ
             return new ErrorResponse($e->getMessage());
         }
-        // Возвращаем успешный ответ
-        return new SuccessfulResponse([
-            'uuid' => $uuid->getUuidString(),
-        ]);
+
     }
 }
