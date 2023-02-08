@@ -27,6 +27,7 @@ class DeletePostByUuid implements ActionInterface
         try {
             // Пытаемся получить искомое имя пользователя из запроса
             $uuid = new UUID($request->query('uuid'));
+            $this->postRepository->get($uuid);
         } catch (HttpException | InvalidArgumentException $e) {
             // Если в запросе нет параметра username - возвращаем неуспешный ответ, сообщение об ошибке берём из описания исключения
             return new ErrorResponse($e->getMessage());

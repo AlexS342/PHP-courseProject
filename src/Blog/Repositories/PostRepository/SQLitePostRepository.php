@@ -66,7 +66,7 @@ class SQLitePostRepository implements PostRepositoryInterface
 
     public function delete (string $uuid):void
     {
-        $statement = $this->connect->prepare("DELETE FROM posts WHERE 'uuid' = :postUuid");
+        $statement = $this->connect->prepare("DELETE FROM posts WHERE posts.uuid = :postUuid");
         $statement->execute([':postUuid' => $uuid]);
     }
 }

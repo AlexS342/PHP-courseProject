@@ -49,7 +49,7 @@ class SQLiteCommitRepository implements CommitRepositoryInterface
         $statement->execute(['uuid' => (string)$uuid]);
 
         try {
-            return $this->createUser($statement, $uuid);
+            return $this->createCommit($statement, $uuid);
         } catch (CommitNotFoundException | InvalidArgumentException | PostNotFoundException |UserNotFoundException $e) {
             throw new AppException($e->getMessage());
         }
@@ -61,11 +61,11 @@ class SQLiteCommitRepository implements CommitRepositoryInterface
      * @throws UserNotFoundException
      * @throws PostNotFoundException
      */
-    private function createUser(PDOStatement $statement, $data):Commit
+    private function createCommit(PDOStatement $statement, $data):Commit
     {
         $result = $statement->fetch(PDO::FETCH_ASSOC);
         if($result===false){
-            throw new CommitNotFoundException("Пользователя $data нет в базе данных");
+            throw new CommitNotFoundException("Комментария $data нет в базе данных");
         }
 
         $userRepository = new SQLiteUserRepository($this->connect);
@@ -79,7 +79,7 @@ class SQLiteCommitRepository implements CommitRepositoryInterface
 
     public function delete (string $uuid):void
     {
-        $statement = $this->connect->prepare("DELETE FROM comments WHERE 'uuid' = :commitUuid");
-        $x = $statement->execute([':commitUuid' => $uuid]);
+        $statement = $this->connect->prepare("DELETE FROM comments WHERE comments.uuid = :commitUuid");
+        $statement->execute([':commitUuid' => $uuid]);
     }
 }
