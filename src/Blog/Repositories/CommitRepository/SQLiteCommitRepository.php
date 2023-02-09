@@ -3,6 +3,7 @@
 namespace Alexs\PhpAdvanced\Blog\Repositories\CommitRepository;
 
 use Alexs\PhpAdvanced\Blog\Commit;
+use Alexs\PhpAdvanced\Blog\Exceptions\AppException;
 use Alexs\PhpAdvanced\Blog\Exceptions\CommitNotFoundException;
 use Alexs\PhpAdvanced\Blog\Exceptions\InvalidArgumentException;
 use Alexs\PhpAdvanced\Blog\Exceptions\PostNotFoundException;
@@ -38,6 +39,7 @@ class SQLiteCommitRepository implements CommitRepositoryInterface
     /**
      * @throws CommitNotFoundException
      * @throws InvalidArgumentException
+     * @throws AppException
      */
     public function get(UUID $uuid):Commit
     {
@@ -46,7 +48,11 @@ class SQLiteCommitRepository implements CommitRepositoryInterface
         );
         $statement->execute(['uuid' => (string)$uuid]);
 
-        return $this->createUser($statement, $uuid);
+        try {
+            return $this->createUser($statement, $uuid);
+        } catch (CommitNotFoundException | InvalidArgumentException | PostNotFoundException |UserNotFoundException $e) {
+            throw new AppException($e->getMessage());
+        }
     }
 
     /**
@@ -69,5 +75,11 @@ class SQLiteCommitRepository implements CommitRepositoryInterface
         $post = $postRepository->get(new UUID($result['uuidPost']));
 
         return new Commit(new UUID($result['uuid']), $user, $post, $result['text']);
+    }
+
+    public function delete (string $uuid):void
+    {
+        $statement = $this->connect->prepare("DELETE FROM comments WHERE 'uuid' = :commitUuid");
+        $x = $statement->execute([':commitUuid' => $uuid]);
     }
 }

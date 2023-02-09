@@ -83,4 +83,13 @@ class SQLiteUserRepository implements UserRepositoryInterface
             }
             return new User(new UUID($result['uuid']), $result['firstName'], $result['lastName'], $result['username'], $result['password'], );
         }
+
+    public function delete (string $uuid):void
+    {
+        $statement = $this->connect->prepare("DELETE FROM users WHERE 'uuid' = :userUuid");
+//        $statement->bindValue(':userUuid', $uuid);
+//        $count = $statement->execute();
+        $count = $statement->execute([':userUuid'=>$uuid]);
+        echo 'Удалено строк: ' . $count . PHP_EOL;
+    }
 }
