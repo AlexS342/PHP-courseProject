@@ -11,7 +11,7 @@ use Alexs\PhpAdvanced\Http\Actions\Posts\CreatePost;
 use Alexs\PhpAdvanced\Http\Actions\Posts\DeletePostByUuid;
 use Alexs\PhpAdvanced\Http\Actions\Posts\FindPostByUuid;
 use Alexs\PhpAdvanced\Http\Actions\Users\CreateUser;
-use Alexs\PhpAdvanced\Http\Actions\Users\DeleteByUuid;
+use Alexs\PhpAdvanced\Http\Actions\Users\DeleteUserByUuid;
 use Alexs\PhpAdvanced\Http\Actions\Users\FindByUsername;
 use Alexs\PhpAdvanced\Http\ErrorResponse;
 use Alexs\PhpAdvanced\Http\Request;
@@ -88,7 +88,7 @@ $routes = [
         ),
     ],
     'DELETE' => [
-        '/user' => new DeleteByUuid(
+        '/user' => new DeleteUserByUuid(
             new SQLiteUserRepository(
                 new PDO('sqlite:' . __DIR__ . '/blog.sqlite')
             )
