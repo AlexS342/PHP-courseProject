@@ -1,128 +1,74 @@
 <?php
 
 use Alexs\PhpAdvanced\Blog\Exceptions\AppException;
-use Alexs\PhpAdvanced\Blog\Repositories\CommitRepository\SQLiteCommitRepository;
-use Alexs\PhpAdvanced\Blog\Repositories\PostRepository\SQLitePostRepository;
-use Alexs\PhpAdvanced\Blog\Repositories\UserRepository\SQLiteUserRepository;
 use Alexs\PhpAdvanced\Http\Actions\Commits\CreateCommit;
-use Alexs\PhpAdvanced\Http\Actions\Commits\DeleteCommitByUuid;
 use Alexs\PhpAdvanced\Http\Actions\Commits\FindCommitByUuid;
 use Alexs\PhpAdvanced\Http\Actions\Posts\CreatePost;
-use Alexs\PhpAdvanced\Http\Actions\Posts\DeletePostByUuid;
 use Alexs\PhpAdvanced\Http\Actions\Posts\FindPostByUuid;
 use Alexs\PhpAdvanced\Http\Actions\Users\CreateUser;
-use Alexs\PhpAdvanced\Http\Actions\Users\DeleteUserByUuid;
 use Alexs\PhpAdvanced\Http\Actions\Users\FindByUsername;
 use Alexs\PhpAdvanced\Http\ErrorResponse;
 use Alexs\PhpAdvanced\Http\Request;
-use Alexs\PhpAdvanced\Http\SuccessfulResponse;
-use Alexs\PhpAdvanced\Blog\Exceptions\HttpException;
+ use Alexs\PhpAdvanced\Blog\Exceptions\HttpException;
 
-// Устанавливаем код ответа
-require_once __DIR__ . '/vendor/autoload.php';
-
+// Подключаем файл bootstrap.php
+// и получаем настроенный контейнер
+$container = require __DIR__ . '/bootstrap.php';
 $request = new Request(
     $_GET,
     $_SERVER,
-// Читаем поток, содержащий тело запроса
     file_get_contents('php://input'),
 );
-
 try {
-    //Получаем путь
     $path = $request->path();
 } catch (HttpException) {
     (new ErrorResponse)->send();
     return;
 }
 try {
-    // Пытаемся получить HTTP-метод запроса
     $method = $request->method();
 } catch (HttpException) {
-    // Возвращаем неудачный ответ, если по какой-то причине не можем получить метод
     (new ErrorResponse)->send();
     return;
 }
+// Ассоциируем маршруты с именами классов действий,
+// вместо готовых объектов
 $routes = [
     'GET' => [
-        '/users/show' => new FindByUsername(
-            new SQLiteUserRepository(
-                new PDO('sqlite:' . __DIR__ . '/blog.sqlite')
-            )
-        ),
-        '/posts/show' => new FindPostByUuid(
-            new SQLitePostRepository(
-                new PDO('sqlite:' . __DIR__ . '/blog.sqlite')
-            )
-        ),
-        '/commit/show' => new FindCommitByUuid(
-            new SQLiteCommitRepository(
-                new PDO('sqlite:' . __DIR__ . '/blog.sqlite')
-            )
-        ),
+        '/users/show' => FindByUsername::class,
+        '/posts/show' => FindPostByUuid::class,
+        '/commit/show' => FindCommitByUuid::class,
     ],
     'POST' => [
-        '/user/create' => new CreateUser(
-            new SQLiteUserRepository(
-                new PDO('sqlite:' . __DIR__ . '/blog.sqlite')
-            )
-        ),
-        '/posts/create' => new CreatePost(
-            new SQLitePostRepository(
-                new PDO('sqlite:' . __DIR__ . '/blog.sqlite')
-            ),
-            new SQLiteUserRepository(
-                new PDO('sqlite:' . __DIR__ . '/blog.sqlite')
-            )
-        ),
-        '/commit/create' => new CreateCommit(
-            new SQLiteCommitRepository(
-                new PDO('sqlite:' . __DIR__ . '/blog.sqlite')
-            ),
-            new SQLitePostRepository(
-                new PDO('sqlite:' . __DIR__ . '/blog.sqlite')
-            ),
-            new SQLiteUserRepository(
-                new PDO('sqlite:' . __DIR__ . '/blog.sqlite')
-            )
-        ),
+        '/user/create' => CreateUser::class,
+        '/posts/create' => CreatePost::class,
+        '/commit/create' => CreateCommit::class,
     ],
     'DELETE' => [
-        '/user' => new DeleteUserByUuid(
-            new SQLiteUserRepository(
-                new PDO('sqlite:' . __DIR__ . '/blog.sqlite')
-            )
-        ),
-        '/post' => new DeletePostByUuid(
-            new SQLitePostRepository(
-                new PDO('sqlite:' . __DIR__ . '/blog.sqlite')
-            )
-        ),
-        '/commit' => new DeleteCommitByUuid(
-            new SQLiteCommitRepository(
-                new PDO('sqlite:' . __DIR__ . '/blog.sqlite')
-            )
-        )
-    ]
+        '/user' => CreateUser::class,
+        '/posts' => CreatePost::class,
+        '/commit' => CreateCommit::class,
+    ],
 ];
-// Если у нас нет маршрутов для метода запроса - возвращаем неуспешный ответ
 if (!array_key_exists($method, $routes)) {
-    (new ErrorResponse('Not found'))->send();
+    (new ErrorResponse("Route not found: $method $path"))->send();
     return;
 }
-// Ищем маршрут среди маршрутов для этого метода
 if (!array_key_exists($path, $routes[$method])) {
-    (new ErrorResponse('Not found'))->send();
+    (new ErrorResponse("Route not found: $method $path"))->send();
     return;
 }
-// Выбираем действие по методу и пути
-$action = $routes[$method][$path];
+// Получаем имя класса действия для маршрута
+$actionClassName = $routes[$method][$path];
+// С помощью контейнера
+// создаём объект нужного действия
+$action = $container->get($actionClassName);
 try {
     $response = $action->handle($request);
-    $response->send();
 } catch (AppException $e) {
     (new ErrorResponse($e->getMessage()))->send();
 }
+$response->send();
 
 
 

@@ -5,6 +5,11 @@
             "Alexs\\PhpAdvanced\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Alexs\\PhpAdvanced\\Blog\\UnitTests\\": "tests/"
+        }
+    },
     "authors": [
         {
             "name": "AlexS",
@@ -17,7 +22,8 @@
 
       "ext-pdo": "*",
         "symfony/polyfill-uuid": "^1.27",
-      "ext-mbstring": "*"
+      "ext-mbstring": "*",
+        "psr/container": "^2.0"
     },
     "require-dev": {
         "roave/security-advisories": "dev-latest",
