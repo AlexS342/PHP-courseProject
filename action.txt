@@ -1,11 +1,19 @@
-Найти пользователя по username:
++Найти пользователя по username:
 GET http://127.0.0.1:8000/users/show?username=zanna.gorskova
-Найти пост по uuid:
+
++Найти пост по uuid:
 GET http://127.0.0.1:8000/posts/show?uuid=045c5f14-468b-4132-9c61-61c098f95586
-Найти коммит по uuid:
+
+?+Найти коммит по uuid:
 GET http://127.0.0.1:8000/commit/show?uuid=0e68d929-d52e-4ca0-9285-533b6f80285f
 
-Создай пользователя:
+Найти лайк по uuid:
+GET http://127.0.0.1:8000/like/show?uuid=0e68d929-d52e-4ca0-9285-533b6f80285f
+
++Найти все лайки по uuidPost:
+GET http://127.0.0.1:8000/like/allShow?uuid=0e68d929-d52e-4ca0-9285-533b6f80285f
+
++Создай пользователя:
 POST http://127.0.0.1:8000/user/create
 {
 "firstName": "Алена",
@@ -14,7 +22,7 @@ POST http://127.0.0.1:8000/user/create
 "password": "678DfG43Lk"
 }
 
-Создай пост:
++Создай пост:
 POST http://127.0.0.1:8000/posts/create
 {
 "author_uuid": "76bf4bc0-fdd7-417b-b4ba-b4c3d03d849b",
@@ -22,23 +30,31 @@ POST http://127.0.0.1:8000/posts/create
 "title": "some title"
 }
 
-Создай коммит:
++Создай коммит:
 POST http://127.0.0.1:8000/commit/create
-
 {
 "user_uuid": "76bf4bc0-fdd7-417b-b4ba-b4c3d03d849b",
 "post_uuid": "2a8c777f-444f-4fde-86c9-540de56f4fd1",
 "text": "Какой-то текст коментария"
 }
 
-Удалить пользователя:
++Создать лайк:
+POST http://127.0.0.1:8000/like/create
+{
+"user_uuid": "76bf4bc0-fdd7-417b-b4ba-b4c3d03d849b",
+"post_uuid": "2a8c777f-444f-4fde-86c9-540de56f4fd1"
+}
+
++Удалить пользователя:
 DELETE http://127.0.0.1:8000/user?uuid=56f3f24b-a4f9-425b-a941-911a80177f94
 
-//~~~~~~~~~~~~~~SQL~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-DELETE
-FROM users
-WHERE uuid = '76bf4bc0-fdd7-417b-b4br-b4c3d03d849b';
++Удалить пост:
+DELETE http://127.0.0.1:8000/posts?uuid=1ba44318-8ae5-445e-a42d-7e68fe7f6cf9
 
-DELETE
-FROM users
-WHERE uuid = '4f263ac0-edd5-490f-b0fb-c63f37cfd523';
+-Удалить коментарий:
+DELETE http://127.0.0.1:8000/commit?uuid=1ba44318-8ae5-445e-a42d-7e68fe7f6cf9
+
+???
+Удалить лайк:
+DELETE http://127.0.0.1:8000/like?uuid=1ba44318-8ae5-445e-a42d-7e68fe7f6cf9
+
