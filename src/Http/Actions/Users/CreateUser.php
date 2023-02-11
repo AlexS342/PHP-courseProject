@@ -23,7 +23,6 @@ class CreateUser implements ActionInterface
 {
 // Внедряем репозитории статей и пользователей
     public function __construct(
-//        private PostRepositoryInterface $postsRepository,
         private UserRepositoryInterface $usersRepository,
     ) {
     }

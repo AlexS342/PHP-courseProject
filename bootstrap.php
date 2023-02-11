@@ -1,6 +1,10 @@
 <?php
 
 use Alexs\PhpAdvanced\Blog\Container\DIContainer;
+use Alexs\PhpAdvanced\Blog\Repositories\CommitRepository\CommitRepositoryInterface;
+use Alexs\PhpAdvanced\Blog\Repositories\CommitRepository\SQLiteCommitRepository;
+use Alexs\PhpAdvanced\Blog\Repositories\LikeRepository\LikeRepositoryInterface;
+use Alexs\PhpAdvanced\Blog\Repositories\LikeRepository\SQLiteLikeRepository;
 use Alexs\PhpAdvanced\Blog\Repositories\PostRepository\PostRepositoryInterface;
 use Alexs\PhpAdvanced\Blog\Repositories\PostRepository\SQLitePostRepository;
 use Alexs\PhpAdvanced\Blog\Repositories\UserRepository\SQLiteUserRepository;
@@ -25,6 +29,16 @@ $container->bind(
 $container->bind(
     UserRepositoryInterface::class,
     SqliteUserRepository::class
+);
+// 4. репозиторий комитов
+$container->bind(
+    CommitRepositoryInterface::class,
+    SqliteCommitRepository::class
+);
+// 5. репозиторий лайков
+$container->bind(
+    LikeRepositoryInterface::class,
+    SqliteLikeRepository::class
 );
 // Возвращаем объект контейнера
 return $container;

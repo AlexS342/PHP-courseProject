@@ -3,8 +3,10 @@
 namespace Alexs\PhpAdvanced\Blog\Repositories\LikeRepository;
 
 use Alexs\PhpAdvanced\Blog\Exceptions\InvalidArgumentException;
+use Alexs\PhpAdvanced\Blog\Exceptions\PostNotFoundException;
 use Alexs\PhpAdvanced\Blog\Exceptions\UserNotFoundException;
 use Alexs\PhpAdvanced\Blog\Like;
+use Alexs\PhpAdvanced\Blog\Post;
 use Alexs\PhpAdvanced\Blog\Repositories\UserRepository\UserRepositoryInterface;
 use Alexs\PhpAdvanced\Blog\User;
 use Alexs\PhpAdvanced\Blog\UUID;
@@ -22,71 +24,113 @@ class SQLiteLikeRepository implements LikeRepositoryInterface
     {
     }
 
-    public function save(User $user): void
+    public function save(Like $like): void
     {
         $statement = $this->connect->prepare(
-            "INSERT INTO users (uuid, firstName, lastName, username, password) 
-            VALUES (:uuid, :firstName, :lastName, :username, :password)"
+            "SELECT * FROM likes WHERE uuidUser = :uuidUser and uuidPost = :uuidPost"
         );
         $statement->execute([
-            'uuid' => (string)$user->getUuid(),
-            'firstName' => $user->getFirstName(),
-            'lastName' => $user->getLastName(),
-            'username' => $user->getUsername(),
-            'password' => $user->getPassword()
+            'uuidPost' => (string)$like->getPost()->getUuid(),
+            'uuidUser' => (string)$like->getUser()->getUuid()
+        ]);
+
+        $result = $statement->fetch(PDO::FETCH_ASSOC);
+        if($result !== false){
+            throw new PostNotFoundException("Лайк к посту " . $like->getPost()->getUuid() . " уже поставлен");
+        }
+
+        $statement = $this->connect->prepare(
+            "INSERT INTO likes (uuid, uuidPost, uuidUser) 
+            VALUES (:uuid, :uuidPost, :uuidUser)"
+        );
+        $statement->execute([
+            'uuid' => (string)$like->getUuid(),
+            'uuidPost' => (string)$like->getPost()->getUuid(),
+            'uuidUser' => (string)$like->getUser()->getUuid()
         ]);
     }
 
-
-    /**
-     * @throws UserNotFoundException
-     * @throws InvalidArgumentException
-     */
-    public function get(UUID $uuid):User
+    public function get(UUID $uuid):Like
     {
+        //Подготавливаем запрос на получение лайка
         $statement = $this->connect->prepare(
-            "SELECT * FROM users WHERE uuid = :uuid"
+            "SELECT * FROM likes WHERE uuid = :uuid"
         );
+        //Выполнаяв запрос
         $statement->execute(['uuid' => (string)$uuid]);
-//        $result = $statement->fetch(PDO::FETCH_ASSOC);
-//        if($result===false){
-//            throw new UserNotFoundException("Такого пользователя нет в базе данных");
-//        }
-//        return new User(new UUID($result['uuid']), $result['firstName'], $result['lastName'], $result['username'], $result['password'], );
-        return $this->createUser($statement, $uuid);
+
+        //Получаем лайк из таблицы
+        $resultLike = $statement->fetch(PDO::FETCH_ASSOC);
+        if($resultLike===false){
+            throw new UserNotFoundException("лайк $uuid ненайден в базе данных");
+        }
+
+        //Создаем пользователя
+        $user = $this->getUserByUuid($resultLike['uuidUser']);
+
+        $post =$this->getPostByUuid($resultLike['uuidPost']);
+
+        return new Like(new UUID($resultLike['uuid']), $post, $user);
     }
 
-
-    public function getLikesByPostUuid(string $uuidPost):array
+    public function getAllLikeByPostUuid(string $uuidPost):array
     {
         $statement = $this->connect->prepare(
-            "SELECT * FROM users WHERE username = :username"
+            "SELECT * FROM likes WHERE uuidPost = :uuidPost"
         );
-        $statement->execute(['username' => $uuidPost]);
+        $statement->execute(['uuidPost' => $uuidPost]);
 
-        return $this->createUser($statement, $uuidPost);
+        $likeArr = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+        $allLike = [];
+        foreach ($likeArr as $oneLike)
+        {
+            //Получаем пользователя который поставил лайк
+            $user = $this->getUserByUuid($oneLike['uuidUser']);
+            $post =$this->getPostByUuid($oneLike['uuidPost']);
+            $allLike[] = new Like(new UUID($oneLike['uuid']), $post, $user);
+        }
+
+        return $allLike;
     }
 
-    /**
-     * @param PDOStatement $statement
-     * @param $data
-     * @return User
-     * @throws InvalidArgumentException
-     * @throws UserNotFoundException
-     */
-    private function createUser(PDOStatement $statement, $data):User
-        {
-            $result = $statement->fetch(PDO::FETCH_ASSOC);
-            if($result===false){
-                throw new UserNotFoundException("Пользователя $data нет в базе данных");
-            }
-            return new User(new UUID($result['uuid']), $result['firstName'], $result['lastName'], $result['username'], $result['password'], );
+    private function getUserByUuid($uuid):User
+    {
+        $statement = $this->connect->prepare("SELECT * FROM users WHERE uuid = :uuidUser");
+        $statement->execute(['uuidUser' => $uuid]);
+        $resultUser = $statement->fetch(PDO::FETCH_ASSOC);
+        if($resultUser===false){
+            throw new UserNotFoundException("статья $uuid ненайдена в базе данных");
         }
+        return new User(
+            new UUID($resultUser['uuid']),
+            $resultUser['firstName'],
+            $resultUser['lastName'],
+            $resultUser['username'],
+            $resultUser['password']
+        );
+    }
+
+    private function getPostByUuid($uuid):Post
+    {
+        //Получаем пост
+        $statement = $this->connect->prepare("SELECT * FROM posts WHERE uuid = :uuidPost");
+        $statement->execute(['uuidPost' => $uuid]);
+
+        $resultPost = $statement->fetch(PDO::FETCH_ASSOC);
+        if($resultPost===false){
+            throw new UserNotFoundException("статья $uuid ненайдена в базе данных");
+        }
+        //Получаем пользователя, написавшего пост
+        $author = $this->getUserByUuid($resultPost['uuidAuthor']);
+
+        return new Post(new UUID($resultPost['uuid']), $author, $resultPost['header'], $resultPost['text']);
+    }
 
     public function delete (UUID $uuid):void
     {
-        $statement = $this->connect->prepare("DELETE FROM users WHERE users.uuid = :userUuid");
-        $statement->execute([':userUuid'=>$uuid]);
+        $statement = $this->connect->prepare("DELETE FROM likes WHERE likes.uuid = :likeUuid");
+        $statement->execute([':likeUuid'=>$uuid]);
     }
 
 }
