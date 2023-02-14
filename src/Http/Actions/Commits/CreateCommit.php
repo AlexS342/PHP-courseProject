@@ -20,6 +20,7 @@ use Alexs\PhpAdvanced\Http\SuccessfulResponse;
 use Alexs\PhpAdvanced\Http\Actions\ActionInterface;
 use JsonException;
 use PDO;
+use Psr\Log\LoggerInterface;
 
 class CreateCommit implements ActionInterface
 {
@@ -28,6 +29,8 @@ class CreateCommit implements ActionInterface
         private CommitRepositoryInterface $commitRepository,
         private PostRepositoryInterface $postsRepository,
         private UserRepositoryInterface $usersRepository,
+        // Внедряем контракт логгера
+        private LoggerInterface $logger,
     ) {
     }
 
@@ -41,24 +44,28 @@ class CreateCommit implements ActionInterface
         try {
             $userUuid = new UUID($request->jsonBodyField('user_uuid'));
         } catch (HttpException | InvalidArgumentException $e) {
+            $this->logger->error($e->getMessage(), ['exception' => $e]);
             return new ErrorResponse($e->getMessage());
         }
         // Пытаемся создать UUID поста из данных запроса
         try {
             $postUuid = new UUID($request->jsonBodyField('post_uuid'));
         } catch (HttpException | InvalidArgumentException $e) {
+            $this->logger->error($e->getMessage(), ['exception' => $e]);
             return new ErrorResponse($e->getMessage());
         }
         // Пытаемся найти пользователя в репозитории
         try {
             $user = $this->usersRepository->get($userUuid);
         } catch (UserNotFoundException $e) {
+            $this->logger->error($e->getMessage(), ['exception' => $e]);
             return new ErrorResponse($e->getMessage());
         }
         // Пытаемся найти пост в репозитории
         try {
             $post = $this->postsRepository->get($postUuid);
         } catch (PostNotFoundException $e) {
+            $this->logger->error($e->getMessage(), ['exception' => $e]);
             return new ErrorResponse($e->getMessage());
         }
         // Генерируем UUID для новой статьи
@@ -72,10 +79,13 @@ class CreateCommit implements ActionInterface
                 $request->jsonBodyField('text'),
             );
         } catch (HttpException $e) {
+            $this->logger->error($e->getMessage(), ['exception' => $e]);
             return new ErrorResponse($e->getMessage());
         }
         // Сохраняем новый коммит в репозитории
         $this->commitRepository->save($commit);
+        // Логируем UUID нового пользователя
+        $this->logger->info("Commit created: $newCommitUuid");
         // Возвращаем успешный ответ,
         // содержащий UUID нового поста
         return new SuccessfulResponse([
