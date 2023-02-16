@@ -2,37 +2,45 @@
 
 namespace Alexs\PhpAdvanced\Blog\Repositories\UserRepository;
 
+use Alexs\PhpAdvanced\Blog\Exceptions\ErrorRepository;
 use Alexs\PhpAdvanced\Blog\Exceptions\InvalidArgumentException;
 use Alexs\PhpAdvanced\Blog\Exceptions\UserNotFoundException;
 use Alexs\PhpAdvanced\Blog\User;
 use Alexs\PhpAdvanced\Blog\UUID;
-use Alexs\PhpAdvanced\Http\ErrorResponse;
-use Alexs\PhpAdvanced\Http\Response;
 use PDO;
 use PDOStatement;
+use Psr\Log\LoggerInterface;
 
 class SQLiteUserRepository implements UserRepositoryInterface
 {
 
     public function __construct(
-        private PDO $connect
+        private PDO $connect,
+        // Внедряем контракт логгера
+        private LoggerInterface $logger,
     )
     {
     }
 
     public function save(User $user): void
     {
-        $statement = $this->connect->prepare(
-            "INSERT INTO users (uuid, firstName, lastName, username, password) 
-            VALUES (:uuid, :firstName, :lastName, :username, :password)"
-        );
-        $statement->execute([
-            'uuid' => (string)$user->getUuid(),
-            'firstName' => $user->getFirstName(),
-            'lastName' => $user->getLastName(),
-            'username' => $user->getUsername(),
-            'password' => $user->getPassword()
-        ]);
+        try {
+            $statement = $this->connect->prepare(
+                "INSERT INTO users (uuid, firstName, lastName, username, password) 
+                VALUES (:uuid, :firstName, :lastName, :username, :password)"
+            );
+            $statement->execute([
+                'uuid' => (string)$user->getUuid(),
+                'firstName' => $user->getFirstName(),
+                'lastName' => $user->getLastName(),
+                'username' => $user->getUsername(),
+                'password' => $user->getPassword()
+            ]);
+            $this->logger->info("Пользователь " . $user->getUuid() . " добавлен в базу данных");
+        }catch (ErrorRepository $e){
+            $this->logger->error($e->getMessage(), ['exception' => $e]);
+        }
+
     }
 
 
@@ -42,15 +50,8 @@ class SQLiteUserRepository implements UserRepositoryInterface
      */
     public function get(UUID $uuid):User
     {
-        $statement = $this->connect->prepare(
-            "SELECT * FROM users WHERE uuid = :uuid"
-        );
+        $statement = $this->connect->prepare("SELECT * FROM users WHERE uuid = :uuid");
         $statement->execute(['uuid' => (string)$uuid]);
-//        $result = $statement->fetch(PDO::FETCH_ASSOC);
-//        if($result===false){
-//            throw new UserNotFoundException("Такого пользователя нет в базе данных");
-//        }
-//        return new User(new UUID($result['uuid']), $result['firstName'], $result['lastName'], $result['username'], $result['password'], );
         return $this->createUser($statement, $uuid);
     }
 
@@ -62,11 +63,8 @@ class SQLiteUserRepository implements UserRepositoryInterface
      */
     public function getByUsername(string $username):User
     {
-        $statement = $this->connect->prepare(
-            "SELECT * FROM users WHERE username = :username"
-        );
+        $statement = $this->connect->prepare("SELECT * FROM users WHERE username = :username");
         $statement->execute(['username' => $username]);
-
         return $this->createUser($statement, $username);
     }
 
@@ -81,6 +79,7 @@ class SQLiteUserRepository implements UserRepositoryInterface
         {
             $result = $statement->fetch(PDO::FETCH_ASSOC);
             if($result===false){
+                $this->logger->warning("Пользователя $data нет в базе данных");
                 throw new UserNotFoundException("Пользователя $data нет в базе данных");
             }
             return new User(new UUID($result['uuid']), $result['firstName'], $result['lastName'], $result['username'], $result['password'], );
@@ -90,5 +89,6 @@ class SQLiteUserRepository implements UserRepositoryInterface
     {
         $statement = $this->connect->prepare("DELETE FROM users WHERE users.uuid = :userUuid");
         $statement->execute([':userUuid'=>$uuid]);
+        $this->logger->info("User $uuid deleted");
     }
 }

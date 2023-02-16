@@ -3,6 +3,7 @@
 namespace Alexs\PhpAdvanced\Blog\Repositories\LikeRepository;
 
 use Alexs\PhpAdvanced\Blog\Exceptions\InvalidArgumentException;
+use Alexs\PhpAdvanced\Blog\Exceptions\LikeNotFoundException;
 use Alexs\PhpAdvanced\Blog\Exceptions\PostNotFoundException;
 use Alexs\PhpAdvanced\Blog\Exceptions\UserNotFoundException;
 use Alexs\PhpAdvanced\Blog\Like;
@@ -14,21 +15,22 @@ use Alexs\PhpAdvanced\Http\ErrorResponse;
 use Alexs\PhpAdvanced\Http\Response;
 use PDO;
 use PDOStatement;
+use Psr\Log\LoggerInterface;
 
 class SQLiteLikeRepository implements LikeRepositoryInterface
 {
 
     public function __construct(
-        private PDO $connect
+        private PDO $connect,
+        // Внедряем контракт логгера
+        private LoggerInterface $logger,
     )
     {
     }
 
     public function save(Like $like): void
     {
-        $statement = $this->connect->prepare(
-            "SELECT * FROM likes WHERE uuidUser = :uuidUser and uuidPost = :uuidPost"
-        );
+        $statement = $this->connect->prepare("SELECT * FROM likes WHERE uuidUser = :uuidUser and uuidPost = :uuidPost");
         $statement->execute([
             'uuidPost' => (string)$like->getPost()->getUuid(),
             'uuidUser' => (string)$like->getUser()->getUuid()
@@ -36,6 +38,7 @@ class SQLiteLikeRepository implements LikeRepositoryInterface
 
         $result = $statement->fetch(PDO::FETCH_ASSOC);
         if($result !== false){
+            $this->logger->warning("Лайк к посту " . $like->getUuid() . " уже поставлен");
             throw new PostNotFoundException("Лайк к посту " . $like->getPost()->getUuid() . " уже поставлен");
         }
 
@@ -48,20 +51,20 @@ class SQLiteLikeRepository implements LikeRepositoryInterface
             'uuidPost' => (string)$like->getPost()->getUuid(),
             'uuidUser' => (string)$like->getUser()->getUuid()
         ]);
+        $this->logger->info("Лайк " . $like->getUuid() . " добавлен в базу данных");
     }
 
     public function get(UUID $uuid):Like
     {
         //Подготавливаем запрос на получение лайка
-        $statement = $this->connect->prepare(
-            "SELECT * FROM likes WHERE uuid = :uuid"
-        );
+        $statement = $this->connect->prepare("SELECT * FROM likes WHERE uuid = :uuid");
         //Выполнаяв запрос
         $statement->execute(['uuid' => (string)$uuid]);
 
         //Получаем лайк из таблицы
         $resultLike = $statement->fetch(PDO::FETCH_ASSOC);
         if($resultLike===false){
+            $this->logger->warning("лайк $uuid ненайден в базе данных");
             throw new UserNotFoundException("лайк $uuid ненайден в базе данных");
         }
 
@@ -70,6 +73,7 @@ class SQLiteLikeRepository implements LikeRepositoryInterface
 
         $post =$this->getPostByUuid($resultLike['uuidPost']);
 
+        $this->logger->info("Лайк " . $uuid . " успешно найден");
         return new Like(new UUID($resultLike['uuid']), $post, $user);
     }
 
@@ -81,6 +85,14 @@ class SQLiteLikeRepository implements LikeRepositoryInterface
         $statement->execute(['uuidPost' => $uuidPost]);
 
         $likeArr = $statement->fetchAll(PDO::FETCH_ASSOC);
+        var_dump($likeArr);
+
+//        if($likeArr===false){
+        if(count ($likeArr) === 0){
+//        if(!empty($likeArr)){
+            $this->logger->warning("Лайки для поста $uuidPost не найдены в базе данных");
+            throw new LikeNotFoundException("Комментария $uuidPost нет в базе данных");
+        }
 
         $allLike = [];
         foreach ($likeArr as $oneLike)

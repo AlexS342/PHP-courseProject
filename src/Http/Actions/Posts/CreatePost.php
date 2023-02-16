@@ -17,6 +17,7 @@ use Alexs\PhpAdvanced\Http\SuccessfulResponse;
 use Alexs\PhpAdvanced\Http\Actions\ActionInterface;
 use JsonException;
 use PDO;
+use Psr\Log\LoggerInterface;
 
 class CreatePost implements ActionInterface
 {
@@ -24,6 +25,8 @@ class CreatePost implements ActionInterface
     public function __construct(
         private PostRepositoryInterface $postsRepository,
         private UserRepositoryInterface $usersRepository,
+        // Внедряем контракт логгера
+        private LoggerInterface $logger,
     ) {
     }
 
@@ -33,42 +36,45 @@ class CreatePost implements ActionInterface
      */
     public function handle(Request $request): Response
     {
-// Пытаемся создать UUID пользователя из данных запроса
+        // Пытаемся создать UUID пользователя из данных запроса
         try {
             $authorUuid = new UUID($request->jsonBodyField('author_uuid'));
-            //!!! Нужно получить юзера по ID
             $author = $this->usersRepository->get($authorUuid);
         } catch (HttpException | InvalidArgumentException $e) {
+            // Логируем сообщение с уровнем ERROR
+            $this->logger->error($e->getMessage(), ['exception' => $e]);
             return new ErrorResponse($e->getMessage());
-//            throw new ErrorResponse($e->getMessage());
         }
-// Пытаемся найти пользователя в репозитории
+        // Пытаемся найти пользователя в репозитории
         try {
             $this->usersRepository->get($authorUuid);
         } catch (UserNotFoundException $e) {
+            $this->logger->error($e->getMessage(), ['exception' => $e]);
             return new ErrorResponse($e->getMessage());
-//            throw new ErrorResponse($e->getMessage());
         }
-// Генерируем UUID для новой статьи
+        // Генерируем UUID для новой статьи
         $newPostUuid = UUID::random();
         try {
-// Пытаемся создать объект статьи
-// из данных запроса
+            // Пытаемся создать объект статьи
+            // из данных запроса
             $post = new Post(
                 $newPostUuid,
                 $author,
-//                $authorUuid,
                 $request->jsonBodyField('title'),
                 $request->jsonBodyField('text'),
             );
         } catch (HttpException $e) {
+            $this->logger->error($e->getMessage(), ['exception' => $e]);
             return new ErrorResponse($e->getMessage());
-//            throw new ErrorResponse($e->getMessage());
         }
-// Сохраняем новую статью в репозитории
+        // Сохраняем новую статью в репозитории
         $this->postsRepository->save($post);
-// Возвращаем успешный ответ,
-// содержащий UUID новой статьи
+
+        // Логируем UUID новой статьи
+        $this->logger->info("Post created: $newPostUuid");
+
+        // Возвращаем успешный ответ,
+        // содержащий UUID новой статьи
         return new SuccessfulResponse([
             'uuid' => (string)$newPostUuid,
         ]);

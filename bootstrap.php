@@ -9,11 +9,33 @@ use Alexs\PhpAdvanced\Blog\Repositories\PostRepository\PostRepositoryInterface;
 use Alexs\PhpAdvanced\Blog\Repositories\PostRepository\SQLitePostRepository;
 use Alexs\PhpAdvanced\Blog\Repositories\UserRepository\SQLiteUserRepository;
 use Alexs\PhpAdvanced\Blog\Repositories\UserRepository\UserRepositoryInterface;
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
+use Psr\Log\LoggerInterface;
 
 // Подключаем автозагрузчик Composer
 require_once __DIR__ . '/vendor/autoload.php';
 // Создаём объект контейнера ..
 $container = new DIContainer();
+
+$container->bind(
+    LoggerInterface::class,
+    (new Logger('blog'))
+        ->pushHandler(new StreamHandler(
+            __DIR__ . '/logs/blog.log'
+        ))
+        ->pushHandler(new StreamHandler(
+            __DIR__ . '/logs/blog.error.log',
+            level: Logger::ERROR,
+            bubble: false,
+        ))
+        // Добавили ещё один обработчик;
+        // он будет вызываться первым …
+        ->pushHandler(
+            // .. и вести запись в поток php://stdout, то есть в консоль
+            new StreamHandler("php://stdout")
+        )
+);
 
 // 1. подключение к БД
 $container->bind(

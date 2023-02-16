@@ -18,12 +18,15 @@ use Alexs\PhpAdvanced\Http\SuccessfulResponse;
 use Alexs\PhpAdvanced\Http\Actions\ActionInterface;
 use JsonException;
 use PDO;
+use Psr\Log\LoggerInterface;
 
 class CreateUser implements ActionInterface
 {
-// Внедряем репозитории статей и пользователей
+    // Внедряем репозитории статей и пользователей
     public function __construct(
         private UserRepositoryInterface $usersRepository,
+        // Внедряем контракт логгера
+        private LoggerInterface $logger,
     ) {
     }
 
@@ -33,38 +36,27 @@ class CreateUser implements ActionInterface
      */
     public function handle(Request $request): Response
     {
-// Пытаемся создать UUID пользователя из данных запроса
-//        try {
-//            $authorUuid = new UUID($request->jsonBodyField('author_uuid'));
-//            $author = $this->usersRepository->get($authorUuid);
-//        } catch (HttpException | InvalidArgumentException $e) {
-//            return new ErrorResponse($e->getMessage());
-//        }
-//// Пытаемся найти пользователя в репозитории
-//        try {
-//            $this->usersRepository->get($authorUuid);
-//        } catch (UserNotFoundException $e) {
-//            return new ErrorResponse($e->getMessage());
-//        }
-// Генерируем UUID для новой статьи
+        // Генерируем UUID для новой статьи
         $newUserUuid = UUID::random();
         try {
             // Пытаемся создать объект статьи
             // из данных запроса
             $user = new User(
-                $newUserUuid,
-                $request->jsonBodyField('firstName'),
-                $request->jsonBodyField('lastName'),
-                $request->jsonBodyField('username'),
-                $request->jsonBodyField('password')
+            $newUserUuid,
+            $request->jsonBodyField('firstName'),
+            $request->jsonBodyField('lastName'),
+            $request->jsonBodyField('username'),
+            $request->jsonBodyField('password')
             );
         } catch (HttpException $e) {
+            $this->logger->error($e->getMessage(), ['exception' => $e]);
             return new ErrorResponse($e->getMessage());
         }
-// Сохраняем новую статью в репозитории
+        // Сохраняем нового пользователя в репозитории
         $this->usersRepository->save($user);
-// Возвращаем успешный ответ,
-// содержащий UUID новой статьи
+        // Логируем UUID нового пользователя
+        $this->logger->info("User created: $newUserUuid");
+        // Возвращаем успешный ответ, содержащий UUID нового пользователя
         return new SuccessfulResponse([
             'uuid' => (string)$newUserUuid,
         ]);
