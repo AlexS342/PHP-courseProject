@@ -1,6 +1,7 @@
 <?php
 
 use Alexs\PhpAdvanced\Blog\Exceptions\AppException;
+use Alexs\PhpAdvanced\Http\Actions\auth\LogIn;
 use Alexs\PhpAdvanced\Http\Actions\Commits\CreateCommit;
 use Alexs\PhpAdvanced\Http\Actions\Commits\FindCommitByUuid;
 use Alexs\PhpAdvanced\Http\Actions\Like\CreateLike;
@@ -19,10 +20,10 @@ use Alexs\PhpAdvanced\Http\Actions\Commits\DeleteCommitByUuid;
 use Alexs\PhpAdvanced\Http\Actions\Like\DeleteLikeByUuid;
 use Psr\Log\LoggerInterface;
 
-
 // Подключаем файл bootstrap.php
 // и получаем настроенный контейнер
 $container = require __DIR__ . '/bootstrap.php';
+
 $request = new Request(
     $_GET,
     $_SERVER,
@@ -57,6 +58,8 @@ $routes = [
         '/like/allShow' => FindAllLikeByPostUuid::class
     ],
     'POST' => [
+        // Добавили маршрут обмена пароля на токен
+        '/login' => LogIn::class,
         '/user/create' => CreateUser::class,
         '/posts/create' => CreatePost::class,
         '/commit/create' => CreateCommit::class,
