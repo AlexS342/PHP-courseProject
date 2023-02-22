@@ -2,21 +2,21 @@
 
 namespace Alexs\PhpAdvanced\Http\Actions\Posts;
 
+use Alexs\PhpAdvanced\Blog\Exceptions\AuthException;
 use Alexs\PhpAdvanced\Blog\Exceptions\HttpException;
 use Alexs\PhpAdvanced\Blog\Exceptions\InvalidArgumentException;
 use Alexs\PhpAdvanced\Blog\Exceptions\UserNotFoundException;
 use Alexs\PhpAdvanced\Blog\Post;
 use Alexs\PhpAdvanced\Blog\Repositories\PostRepository\PostRepositoryInterface;
-use Alexs\PhpAdvanced\Blog\Repositories\UserRepository\SQLiteUserRepository;
 use Alexs\PhpAdvanced\Blog\Repositories\UserRepository\UserRepositoryInterface;
 use Alexs\PhpAdvanced\Blog\UUID;
+use Alexs\PhpAdvanced\Http\auth\TokenAuthenticationInterface;
 use Alexs\PhpAdvanced\Http\Request;
 use Alexs\PhpAdvanced\Http\Response;
 use Alexs\PhpAdvanced\Http\ErrorResponse;
 use Alexs\PhpAdvanced\Http\SuccessfulResponse;
 use Alexs\PhpAdvanced\Http\Actions\ActionInterface;
 use JsonException;
-use PDO;
 use Psr\Log\LoggerInterface;
 
 class CreatePost implements ActionInterface
@@ -25,8 +25,12 @@ class CreatePost implements ActionInterface
     public function __construct(
         private PostRepositoryInterface $postsRepository,
         private UserRepositoryInterface $usersRepository,
+        // Аутентификация по токену
+        private TokenAuthenticationInterface $authentication,
         // Внедряем контракт логгера
         private LoggerInterface $logger,
+//        private AuthenticationInterface $authentication,
+
     ) {
     }
 
@@ -36,6 +40,14 @@ class CreatePost implements ActionInterface
      */
     public function handle(Request $request): Response
     {
+        // Обрабатываем ошибки аутентификации
+        // и возвращаем неудачный ответ
+        // с сообщением об ошибке
+        try {
+            $author = $this->authentication->user($request);
+        } catch (AuthException $e) {
+            return new ErrorResponse($e->getMessage());
+        }
         // Пытаемся создать UUID пользователя из данных запроса
         try {
             $authorUuid = new UUID($request->jsonBodyField('author_uuid'));

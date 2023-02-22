@@ -1,6 +1,8 @@
 <?php
 
 use Alexs\PhpAdvanced\Blog\Container\DIContainer;
+use Alexs\PhpAdvanced\Blog\Repositories\AuthTokensRepository\AuthTokensRepositoryInterface;
+use Alexs\PhpAdvanced\Blog\Repositories\AuthTokensRepository\SqliteAuthTokensRepository;
 use Alexs\PhpAdvanced\Blog\Repositories\CommitRepository\CommitRepositoryInterface;
 use Alexs\PhpAdvanced\Blog\Repositories\CommitRepository\SQLiteCommitRepository;
 use Alexs\PhpAdvanced\Blog\Repositories\LikeRepository\LikeRepositoryInterface;
@@ -9,6 +11,11 @@ use Alexs\PhpAdvanced\Blog\Repositories\PostRepository\PostRepositoryInterface;
 use Alexs\PhpAdvanced\Blog\Repositories\PostRepository\SQLitePostRepository;
 use Alexs\PhpAdvanced\Blog\Repositories\UserRepository\SQLiteUserRepository;
 use Alexs\PhpAdvanced\Blog\Repositories\UserRepository\UserRepositoryInterface;
+use Alexs\PhpAdvanced\Http\auth\AuthenticationInterface;
+use Alexs\PhpAdvanced\Http\auth\BearerTokenAuthentication;
+use Alexs\PhpAdvanced\Http\auth\PasswordAuthentication;
+use Alexs\PhpAdvanced\Http\auth\PasswordAuthenticationInterface;
+use Alexs\PhpAdvanced\Http\auth\TokenAuthenticationInterface;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
@@ -62,5 +69,30 @@ $container->bind(
     LikeRepositoryInterface::class,
     SqliteLikeRepository::class
 );
+
+$container->bind(
+    AuthenticationInterface::class,
+PasswordAuthentication::class
+);
+
+$container->bind(
+    PasswordAuthenticationInterface::class,
+    PasswordAuthentication::class
+);
+$container->bind(
+    AuthTokensRepositoryInterface::class,
+    SqliteAuthTokensRepository::class
+);
+
+//$container = new DIContainer();
+$container->bind(
+    PasswordAuthenticationInterface::class,
+    PasswordAuthentication::class
+);
+$container->bind(
+    TokenAuthenticationInterface::class,
+    BearerTokenAuthentication::class
+);
+
 // Возвращаем объект контейнера
 return $container;

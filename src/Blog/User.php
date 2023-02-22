@@ -9,7 +9,9 @@ class User
         private string $firstName,
         private string $lastName,
         private string $username,
-        private string $password
+//        private string $password
+        // Переименовали поле password
+        private string $hashedPassword,
     )
     {
 
@@ -17,6 +19,38 @@ class User
     public function __toString(): string
     {
         return 'Пользователь ' . $this->uuid . ' с именем ' . $this->firstName . ' ' . $this->lastName . ' и логином ' . $this->username;
+    }
+
+    // Переименовали функцию
+    public function hashedPassword(): string
+    {
+        return $this->hashedPassword;
+    }
+
+    // Функция для вычисления хеша
+    private static function hash(string $password, $uuid): string
+    {
+        return hash('sha256', $uuid . $password);
+    }
+// Функция для проверки предъявленного пароля
+    public function checkPassword(string $password): bool
+    {
+        // Передаём UUID пользователя
+        // в функцию хеширования пароля
+        return $this->hashedPassword === self::hash($password, $this->uuid);
+    }
+
+    // Функция для создания нового пользователя
+    public static function createFrom(string $firstName, string $lastName, string $username, string $password, ): self
+    {
+        $uuid = UUID::random();
+        return new self(
+            $uuid,
+            $firstName,
+            $lastName,
+            $username,
+            self::hash($password, $uuid),
+        );
     }
 
     /**
@@ -80,7 +114,7 @@ class User
      */
     public function getPassword(): string
     {
-        return $this->password;
+        return $this->hashedPassword;
     }
 
     /**
@@ -88,7 +122,7 @@ class User
      */
     public function setPassword(string $password): void
     {
-        $this->password = $password;
+        $this->hashedPassword = $password;
     }
 
 

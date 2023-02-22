@@ -25,7 +25,9 @@ POST http://127.0.0.1:8000/user/create
 +Создай пост:
 POST http://127.0.0.1:8000/posts/create
 {
-"author_uuid": "76bf4bc0-fdd7-417b-b4ba-b4c3d03d849b",
+"author_uuid": "3931ddee-adbd-4686-871c-a1bb0d434d11",
+"username": "Shmit1",
+"password": "678DfG43Lk",
 "text": "some text",
 "title": "some title"
 }
@@ -51,10 +53,24 @@ DELETE http://127.0.0.1:8000/user?uuid=56f3f24b-a4f9-425b-a941-911a80177f94
 +Удалить пост:
 DELETE http://127.0.0.1:8000/posts?uuid=1ba44318-8ae5-445e-a42d-7e68fe7f6cf9
 
--Удалить коментарий:
++Удалить коментарий:
 DELETE http://127.0.0.1:8000/commit?uuid=1ba44318-8ae5-445e-a42d-7e68fe7f6cf9
 
-???
-Удалить лайк:
++Удалить лайк:
 DELETE http://127.0.0.1:8000/like?uuid=1ba44318-8ae5-445e-a42d-7e68fe7f6cf9
 
++Обмен пароля на Токен
+POST http://127.0.0.1:8000/login
+{
+"username": "user4",
+"password": "pass1"
+}
+
++Создать пост при авторизации через токен
+POST http://127.0.0.1:8000/posts/create
+Authorization: Bearer 47448d4ae130ba21002f43f1647a6da3c078ab96b4c44c7df7634af2bd186d02b2f2ce4fd8b3cb85
+{
+"author_uuid": "36959377-aef7-4f0e-b617-dedc41fa000e",
+"text": "some text",
+"title": "some title"
+}

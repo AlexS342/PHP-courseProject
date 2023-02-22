@@ -34,6 +34,10 @@ final class CreateUserCommand
 
         $username = $arguments->get('username');
 
+//        $password = $arguments->get('password');
+//        // Вычисляем SHA-256-хеш пароля
+//        $hash = hash('sha256', $password);
+
         if ($this->userExists($username)) {
             // Логируем сообщение с уровнем WARNING
             $this->logger->warning("User already exists: $username");
@@ -41,18 +45,30 @@ final class CreateUserCommand
             return;
         }
 
-        $uuid = UUID::random();
-
-        $this->usersRepository->save(new User(
-            $uuid,
+        // Создаём объект пользователя
+        // Функция createFrom сама создаст UUID
+        // и захеширует пароль
+        $user = User::createFrom(
             $arguments->get('firstName'),
             $arguments->get('lastName'),
             $username,
-            $arguments->get('password')
-        ));
+            $arguments->get('password'),
+        );
+
+        $this->usersRepository->save($user);
+//        $uuid = UUID::random();
+//
+//        $this->usersRepository->save(new User(
+//            $uuid,
+//            $arguments->get('firstName'),
+//            $arguments->get('lastName'),
+//            $username,
+//            $hash,
+////            $arguments->get('password')
+//        ));
 
         // Логируем информацию о новом пользователе
-        $this->logger->info("User created: $uuid");
+        $this->logger->info("User created: " . $user->getUuid());
     }
 
     private function userExists(string $username): bool
