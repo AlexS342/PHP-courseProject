@@ -11,7 +11,7 @@ use Alexs\PhpAdvanced\Blog\User;
 use Alexs\PhpAdvanced\Http\Request;
 use DateTimeImmutable;
 
-class BearerTokenAuthentication
+class BearerTokenAuthentication implements TokenAuthenticationInterface
 {
     private const HEADER_PREFIX = 'Bearer ';
     public function __construct(
