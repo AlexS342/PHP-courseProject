@@ -12,16 +12,21 @@ use Alexs\PhpAdvanced\Http\Request;
 use Alexs\PhpAdvanced\Http\Response;
 use Alexs\PhpAdvanced\Http\SuccessfulResponse;
 use DateTimeImmutable;
+use Exception;
 
 class LogIn implements ActionInterface
 {
     public function __construct(
-// Авторизация по паролю
+        // Авторизация по паролю
         private PasswordAuthenticationInterface $passwordAuthentication,
-// Репозиторий токенов
+        // Репозиторий токенов
         private AuthTokensRepositoryInterface $authTokensRepository
     ) {
     }
+
+    /**
+     * @throws Exception
+     */
     public function handle(Request $request): Response
     {
         // Аутентифицируем пользователя
@@ -30,6 +35,7 @@ class LogIn implements ActionInterface
         } catch (AuthException $e) {
             return new ErrorResponse($e->getMessage());
         }
+
         // Генерируем токен
         $authToken = new AuthToken(
             // Случайная строка длиной 40 символов
@@ -38,8 +44,10 @@ class LogIn implements ActionInterface
             // Срок годности - 1 день
             (new DateTimeImmutable())->modify('+1 day')
         );
+
         // Сохраняем токен в репозиторий
         $this->authTokensRepository->save($authToken);
+
         // Возвращаем токен
         return new SuccessfulResponse([
             'token' => (string)$authToken->token(),

@@ -1,24 +1,4 @@
 <?php
-/*
-Автозагрузчик заменяет в namespace то, что указано в composer.json в поле "psr-4" на то, что указано через двоеточие в
-этом же поле, а не то, что указано в поле "name"
-Часть кода из composer.json:
-    "name": "alexs/php_advanced",
-    "autoload": {
-        "psr-4": {
-            "Alexs\\PhpAdvanced\\": "src/"
-        }
-    }
-Правильный namespace: namespace alexs\php_advanced\Blog
-Правильный use: use alexs\php_advanced\Blog\User
-
-Возможные ошибки:
-    взять путь из поля "name",
-    написать в пути основную папку src, которая подставляется автозагрузчиком
-
-Неправильный namespace: namespace alexs\php_advanced\src\php_advanced\Person
-Неправильный use: alexs\php_advanced\src\Person\Name
- */
 
 use Alexs\PhpAdvanced\Blog\Commands\Arguments;
 use Alexs\PhpAdvanced\Blog\Commands\CreateUserCommand;
@@ -26,16 +6,18 @@ use Alexs\PhpAdvanced\Blog\Exceptions\AppException;
 use Psr\Log\LoggerInterface;
 
 $container = require __DIR__ . '/bootstrap.php';
+
 $command = $container->get(CreateUserCommand::class);
+
 // Получаем объект логгера из контейнера
 $logger = $container->get(LoggerInterface::class);
+
 try {
     $command->handle(Arguments::fromArgv($argv));
 } catch (AppException $e) {
-// Логируем информацию об исключении.
-// Объект исключения передаётся логгеру
-// с ключом "exception".
-// Уровень логирования – ERROR
+    // Логируем информацию об исключении.
+    // Объект исключения передаётся логгеру с ключом "exception".
+    // Уровень логирования – ERROR
     $logger->error($e->getMessage(), ['exception' => $e]);
 }
 

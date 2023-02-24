@@ -4,10 +4,6 @@ namespace Alexs\PhpAdvanced\Http\Actions\Users;
 
 use Alexs\PhpAdvanced\Blog\Exceptions\HttpException;
 use Alexs\PhpAdvanced\Blog\Exceptions\InvalidArgumentException;
-use Alexs\PhpAdvanced\Blog\Exceptions\UserNotFoundException;
-use Alexs\PhpAdvanced\Blog\Post;
-use Alexs\PhpAdvanced\Blog\Repositories\PostRepository\PostRepositoryInterface;
-use Alexs\PhpAdvanced\Blog\Repositories\UserRepository\SQLiteUserRepository;
 use Alexs\PhpAdvanced\Blog\Repositories\UserRepository\UserRepositoryInterface;
 use Alexs\PhpAdvanced\Blog\User;
 use Alexs\PhpAdvanced\Blog\UUID;
@@ -17,7 +13,6 @@ use Alexs\PhpAdvanced\Http\ErrorResponse;
 use Alexs\PhpAdvanced\Http\SuccessfulResponse;
 use Alexs\PhpAdvanced\Http\Actions\ActionInterface;
 use JsonException;
-use PDO;
 use Psr\Log\LoggerInterface;
 
 class CreateUser implements ActionInterface
@@ -39,8 +34,7 @@ class CreateUser implements ActionInterface
         // Генерируем UUID для новой статьи
         $newUserUuid = UUID::random();
         try {
-            // Пытаемся создать объект статьи
-            // из данных запроса
+            // Пытаемся создать объект статьи из данных запроса
             $user = new User(
             $newUserUuid,
             $request->jsonBodyField('firstName'),
@@ -52,10 +46,13 @@ class CreateUser implements ActionInterface
             $this->logger->error($e->getMessage(), ['exception' => $e]);
             return new ErrorResponse($e->getMessage());
         }
+
         // Сохраняем нового пользователя в репозитории
         $this->usersRepository->save($user);
+
         // Логируем UUID нового пользователя
         $this->logger->info("User created: $newUserUuid");
+
         // Возвращаем успешный ответ, содержащий UUID нового пользователя
         return new SuccessfulResponse([
             'uuid' => (string)$newUserUuid,

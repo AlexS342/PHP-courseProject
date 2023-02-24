@@ -15,8 +15,7 @@ use Alexs\PhpAdvanced\Http\Actions\ActionInterface;
 
 class FindPostByUuid implements ActionInterface
 {
-// Нам понадобится репозиторий пользователей,
-    // внедряем его контракт в качестве зависимости
+    // Нам понадобится репозиторий пользователей, внедряем его контракт в качестве зависимости
     public function __construct(
         private PostRepositoryInterface $postRepository
     ) {
@@ -29,8 +28,7 @@ class FindPostByUuid implements ActionInterface
             // Пытаемся получить искомое имя пользователя из запроса
             $uuid = $request->query('uuid');
         } catch (HttpException $e) {
-            // Если в запросе нет параметра username -
-            // возвращаем неуспешный ответ,
+            // Если в запросе нет параметра username - возвращаем неуспешный ответ,
             // сообщение об ошибке берём из описания исключения
             return new ErrorResponse($e->getMessage());
         }
@@ -43,7 +41,7 @@ class FindPostByUuid implements ActionInterface
                 'header' => $post->getHeader(),
                 'text' => $post->getText()
             ]);
-        } catch (PostNotFoundException $e) {
+        } catch (PostNotFoundException | InvalidArgumentException $e) {
             // Если пользователь не найден - возвращаем неуспешный ответ
             return new ErrorResponse($e->getMessage());
         }

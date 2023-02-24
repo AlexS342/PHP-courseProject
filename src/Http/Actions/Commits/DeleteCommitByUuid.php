@@ -15,12 +15,12 @@ use Alexs\PhpAdvanced\Http\Actions\ActionInterface;
 
 class DeleteCommitByUuid  implements ActionInterface
 {
-    // Нам понадобится репозиторий пользователей,
-    // внедряем его контракт в качестве зависимости
+    // Нам понадобится репозиторий пользователей, внедряем его контракт в качестве зависимости
     public function __construct(
         private CommitRepositoryInterface $commitRepository
     ) {
     }
+
     // Функция, описанная в контракте
     public function handle(Request $request): Response
     {
@@ -29,15 +29,14 @@ class DeleteCommitByUuid  implements ActionInterface
             $uuid = new UUID($request->query('uuid'));
             $this->commitRepository->get($uuid);
         } catch (HttpException | InvalidArgumentException $e) {
-            // Если в запросе нет параметра username -
-            // возвращаем неуспешный ответ,
+            // Если в запросе нет параметра username - возвращаем неуспешный ответ,
             // сообщение об ошибке берём из описания исключения
             return new ErrorResponse($e->getMessage());
         }
         try {
             // Пытаемся найти пользователя в репозитории
-//            $commit = $this->commitRepository->delete(new UUID($uuid));
             $this->commitRepository->delete((string)$uuid);
+
             // Возвращаем успешный ответ
             return new SuccessfulResponse([
                 'uuid' => (string)$uuid
@@ -46,6 +45,5 @@ class DeleteCommitByUuid  implements ActionInterface
             // Если пользователь не найден - возвращаем неуспешный ответ
             return new ErrorResponse($e->getMessage());
         }
-
     }
 }

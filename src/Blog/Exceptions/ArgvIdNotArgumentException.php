@@ -2,7 +2,7 @@
 
 namespace Alexs\PhpAdvanced\Blog\Exceptions;
 
-class argvIdNotArgumentException extends AppException
+class ArgvIdNotArgumentException extends AppException
 {
 
 }
