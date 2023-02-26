@@ -3,7 +3,6 @@
 namespace Alexs\PhpAdvanced\Http\Actions\Users;
 
 use Alexs\PhpAdvanced\Blog\Exceptions\InvalidArgumentException;
-use Alexs\PhpAdvanced\Blog\Repositories\UserRepository\SQLiteUserRepository;
 use Alexs\PhpAdvanced\Blog\UUID;
 use Alexs\PhpAdvanced\Http\Actions\ActionInterface;
 use Alexs\PhpAdvanced\Http\ErrorResponse;
@@ -14,12 +13,9 @@ use Alexs\PhpAdvanced\Http\SuccessfulResponse;
 use Alexs\PhpAdvanced\Blog\Exceptions\UserNotFoundException;
 use Alexs\PhpAdvanced\Blog\Repositories\UserRepository\UserRepositoryInterface;
 
-
-
 class DeleteUserByUuid implements ActionInterface
 {
-    // Нам понадобится репозиторий пользователей,
-    // внедряем его контракт в качестве зависимости
+    // Нам понадобится репозиторий пользователей, внедряем его контракт в качестве зависимости
     public function __construct(
         private UserRepositoryInterface $usersRepository
     ) {

@@ -22,6 +22,7 @@ use Psr\Log\LoggerInterface;
 
 // Подключаем автозагрузчик Composer
 require_once __DIR__ . '/vendor/autoload.php';
+
 // Создаём объект контейнера ..
 $container = new DIContainer();
 
@@ -36,8 +37,7 @@ $container->bind(
             level: Logger::ERROR,
             bubble: false,
         ))
-        // Добавили ещё один обработчик;
-        // он будет вызываться первым …
+        // Добавили ещё один обработчик, он будет вызываться первым …
         ->pushHandler(
             // .. и вести запись в поток php://stdout, то есть в консоль
             new StreamHandler("php://stdout")

@@ -3,7 +3,9 @@
 namespace Alexs\PhpAdvanced\Blog\Container;
 
 use Alexs\PhpAdvanced\Blog\Exceptions\NotFoundException;
+use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use ReflectionClass;
 
 class DIContainer implements ContainerInterface
@@ -51,10 +53,11 @@ class DIContainer implements ContainerInterface
         // Здесь мы просто пытаемся создать объект требуемого типа
         try {
             $this->get($type);
-        } catch (NotFoundException $e) {
+        } catch (NotFoundException | ContainerExceptionInterface | NotFoundExceptionInterface $e) {
         // Возвращаем false, если объект не создан...
             return false;
         }
+
         // и true, если создан
         return true;
     }

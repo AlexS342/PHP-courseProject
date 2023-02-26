@@ -21,7 +21,7 @@ use Psr\Log\LoggerInterface;
 
 class CreateLike implements ActionInterface
 {
-// Внедряем репозитории коммита, статей и пользователей
+    // Внедряем репозитории коммита, статей и пользователей
     public function __construct(
         private LikeRepositoryInterface $likeRepository,
         private PostRepositoryInterface $postsRepository,
@@ -44,6 +44,7 @@ class CreateLike implements ActionInterface
             $this->logger->error($e->getMessage(), ['exception' => $e]);
             return new ErrorResponse($e->getMessage());
         }
+
         // Пытаемся создать UUID поста из данных запроса
         try {
             $postUuid = new UUID($request->jsonBodyField('post_uuid'));
@@ -58,6 +59,7 @@ class CreateLike implements ActionInterface
             $this->logger->error($e->getMessage(), ['exception' => $e]);
             return new ErrorResponse($e->getMessage());
         }
+
         // Пытаемся найти пост в репозитории
         try {
             $post = $this->postsRepository->get($postUuid);

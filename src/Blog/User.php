@@ -2,6 +2,8 @@
 
 namespace Alexs\PhpAdvanced\Blog;
 
+use Alexs\PhpAdvanced\Blog\Exceptions\InvalidArgumentException;
+
 class User
 {
     public function __construct(
@@ -9,7 +11,6 @@ class User
         private string $firstName,
         private string $lastName,
         private string $username,
-//        private string $password
         // Переименовали поле password
         private string $hashedPassword,
     )
@@ -32,15 +33,19 @@ class User
     {
         return hash('sha256', $uuid . $password);
     }
-// Функция для проверки предъявленного пароля
+
+    // Функция для проверки предъявленного пароля
     public function checkPassword(string $password): bool
     {
-        // Передаём UUID пользователя
-        // в функцию хеширования пароля
+        // Передаём UUID пользователя в функцию хеширования пароля
         return $this->hashedPassword === self::hash($password, $this->uuid);
     }
 
     // Функция для создания нового пользователя
+
+    /**
+     * @throws InvalidArgumentException
+     */
     public static function createFrom(string $firstName, string $lastName, string $username, string $password, ): self
     {
         $uuid = UUID::random();

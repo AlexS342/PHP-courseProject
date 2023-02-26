@@ -15,8 +15,7 @@ use Alexs\PhpAdvanced\Blog\Repositories\UserRepository\UserRepositoryInterface;
 
 class FindByUsername implements ActionInterface
 {
-    // Нам понадобится репозиторий пользователей,
-    // внедряем его контракт в качестве зависимости
+    // Нам понадобится репозиторий пользователей, внедряем его контракт в качестве зависимости
     public function __construct(
         private UserRepositoryInterface $usersRepository
     ) {
@@ -28,8 +27,7 @@ class FindByUsername implements ActionInterface
             // Пытаемся получить искомое имя пользователя из запроса
             $username = $request->query('username');
         } catch (HttpException $e) {
-            // Если в запросе нет параметра username -
-            // возвращаем неуспешный ответ,
+            // Если в запросе нет параметра username - возвращаем неуспешный ответ,
             // сообщение об ошибке берём из описания исключения
             return new ErrorResponse($e->getMessage());
         }
@@ -37,8 +35,7 @@ class FindByUsername implements ActionInterface
             // Пытаемся найти пользователя в репозитории
             $user = $this->usersRepository->getByUsername($username);
         } catch (UserNotFoundException $e) {
-            // Если пользователь не найден -
-            // возвращаем неуспешный ответ
+            // Если пользователь не найден - возвращаем неуспешный ответ
             return new ErrorResponse($e->getMessage());
         }
         // Возвращаем успешный ответ

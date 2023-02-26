@@ -6,6 +6,7 @@ use Alexs\PhpAdvanced\Blog\Exceptions\ArgumentsException;
 use Alexs\PhpAdvanced\Blog\Exceptions\InvalidArgumentException;
 use Alexs\PhpAdvanced\Blog\Exceptions\UserNotFoundException;
 use Alexs\PhpAdvanced\Blog\Repositories\UserRepository\DummyUsersRepository;
+use Alexs\PhpAdvanced\Http\Actions\Users\CreateUser;
 use PHPUnit\Framework\TestCase;
 use Alexs\PhpAdvanced\Blog\Repositories\UserRepository\UserRepositoryInterface;
 use Alexs\PhpAdvanced\Blog\Commands\Arguments;
@@ -13,6 +14,9 @@ use Alexs\PhpAdvanced\Blog\Exceptions\CommandException;
 use Alexs\PhpAdvanced\Blog\Commands\CreateUserCommand;
 use Alexs\PhpAdvanced\Blog\User;
 use Alexs\PhpAdvanced\Blog\UUID;
+use RuntimeException;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Output\NullOutput;
 
 
 class CreateUserCommandTest extends TestCase
@@ -41,32 +45,70 @@ class CreateUserCommandTest extends TestCase
      */
     public function testItRequiresFirstName(): void
     {
-        // Вызываем ту же функцию
-        $command = new CreateUserCommand($this->makeUsersRepository());
-        $this->expectException(ArgumentsException::class);
-        $this->expectExceptionMessage('No such argument: firstName');
-        $command->handle(new Arguments(['username' => 'Ivan']));
+        $command = new CreateUser(
+            $this->makeUsersRepository()
+        );
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage(
+            'Not enough arguments (missing: "first_name, last_name").'
+        );
+        $command->run(
+            new ArrayInput([
+                'username' => 'Ivan',
+                'password' => 'some_password',
+            ]),
+            new NullOutput()
+        );
     }
 
     // Тест проверяет, что команда действительно требует фамилию пользователя
-
     /**
      * @throws InvalidArgumentException
      * @throws CommandException
      */
     public function testItRequiresLastName(): void
     {
-        // Передаём в конструктор команды объект, возвращаемый нашей функцией
-        $command = new CreateUserCommand($this->makeUsersRepository());
-        $this->expectException(ArgumentsException::class);
-        $this->expectExceptionMessage('No such argument: lastName');
-        $command->handle(new Arguments([
-            'username' => 'Ivan',
-            // Нам нужно передать имя пользователя,
-            // чтобы дойти до проверки наличия фамилии
-            'firstName' => 'Ivan',
-        ]));
+        // Тестируем новую команду
+        $command = new CreateUser(
+            $this->makeUsersRepository(),
+        );
+        // Меняем тип ожидаемого исключения ..
+        $this->expectException(RuntimeException::class);
+        // .. и его сообщение
+        $this->expectExceptionMessage(
+            'Not enough arguments (missing: "last_name").'
+        );
+        // Запускаем команду методом run вместо handle
+        $command->run(
+            // Передаём аргументы как ArrayInput, а не Arguments
+            // Сами аргументы не меняются
+            new ArrayInput([
+                'username' => 'Ivan',
+                'password' => 'some_password',
+                'first_name' => 'Ivan',
+            ]),
+            // Передаём также объект, реализующий контракт OutputInterface
+            // Нам подойдёт реализация, которая ничего не делает
+            new NullOutput()
+        );
     }
+
+    public function testItRequiresPassword(): void
+    {
+        $command = new CreateUser(
+            $this->makeUsersRepository()
+        );
+$this->expectException(RuntimeException::class);
+$this->expectExceptionMessage(
+    'Not enough arguments (missing: "first_name, last_name, password"'
+);
+$command->run(
+    new ArrayInput([
+        'username' => 'Ivan',
+    ]),
+    new NullOutput()
+);
+}
 
     // Функция возвращает объект типа UsersRepositoryInterface
     private function makeUsersRepository(): UserRepositoryInterface
@@ -90,14 +132,13 @@ class CreateUserCommandTest extends TestCase
 // Тест, проверяющий, что команда сохраняет пользователя в репозитории
     public function testItSavesUserToRepository(): void
     {
-// Создаём объект анонимного класса
+        // Создаём объект анонимного класса
         $usersRepository = new class implements UserRepositoryInterface {
-// В этом свойстве мы храним информацию о том,
-// был ли вызван метод save
+            // В этом свойстве мы храним информацию о том, был ли вызван метод save
             private bool $called = false;
             public function save(User $user): void
             {
-// Запоминаем, что метод save был вызван
+                // Запоминаем, что метод save был вызван
                 $this->called = true;
             }
             public function get(UUID $uuid): User
@@ -108,28 +149,28 @@ class CreateUserCommandTest extends TestCase
             {
                 throw new UserNotFoundException("Not found");
             }
-// Этого метода нет в контракте UsersRepositoryInterface,
-// но ничто не мешает его добавить.
-// С помощью этого метода мы можем узнать,
-// был ли вызван метод save
+            // Этого метода нет в контракте UsersRepositoryInterface, но ничто не мешает его добавить.
+            // С помощью этого метода мы можем узнать, был ли вызван метод save
             public function wasCalled(): bool
             {
                 return $this->called;
             }
         };
-// Передаём наш мок в команду
-        $command = new CreateUserCommand($usersRepository);
-// Запускаем команду
-        $command->handle(new Arguments([
-            'username' => 'Ivan',
-            'firstName' => 'Ivan',
-            'lastName' => 'Nikitin',
-            'password' => '12345sdfg'
-        ]));
-// Проверяем утверждение относительно мока,
-// а не утверждение относительно команды
+
+        $command = new CreateUser(
+            $usersRepository
+        );
+        $command->run(
+            new ArrayInput([
+                'username' => 'Ivan',
+                'password' => 'some_password',
+                'first_name' => 'Ivan',
+                'last_name' => 'Nikitin',
+            ]),
+            new NullOutput()
+        );
+
         $this->assertTrue($usersRepository->wasCalled());
     }
-
 }
 

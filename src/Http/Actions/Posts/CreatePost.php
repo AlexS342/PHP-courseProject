@@ -21,7 +21,7 @@ use Psr\Log\LoggerInterface;
 
 class CreatePost implements ActionInterface
 {
-// Внедряем репозитории статей и пользователей
+    // Внедряем репозитории статей и пользователей
     public function __construct(
         private PostRepositoryInterface $postsRepository,
         private UserRepositoryInterface $usersRepository,
@@ -29,8 +29,6 @@ class CreatePost implements ActionInterface
         private TokenAuthenticationInterface $authentication,
         // Внедряем контракт логгера
         private LoggerInterface $logger,
-//        private AuthenticationInterface $authentication,
-
     ) {
     }
 
@@ -40,9 +38,7 @@ class CreatePost implements ActionInterface
      */
     public function handle(Request $request): Response
     {
-        // Обрабатываем ошибки аутентификации
-        // и возвращаем неудачный ответ
-        // с сообщением об ошибке
+        // Обрабатываем ошибки аутентификации и возвращаем неудачный ответ с сообщением об ошибке
         try {
             $author = $this->authentication->user($request);
         } catch (AuthException $e) {
@@ -67,8 +63,7 @@ class CreatePost implements ActionInterface
         // Генерируем UUID для новой статьи
         $newPostUuid = UUID::random();
         try {
-            // Пытаемся создать объект статьи
-            // из данных запроса
+            // Пытаемся создать объект статьи из данных запроса
             $post = new Post(
                 $newPostUuid,
                 $author,
@@ -85,8 +80,7 @@ class CreatePost implements ActionInterface
         // Логируем UUID новой статьи
         $this->logger->info("Post created: $newPostUuid");
 
-        // Возвращаем успешный ответ,
-        // содержащий UUID новой статьи
+        // Возвращаем успешный ответ, содержащий UUID новой статьи
         return new SuccessfulResponse([
             'uuid' => (string)$newPostUuid,
         ]);

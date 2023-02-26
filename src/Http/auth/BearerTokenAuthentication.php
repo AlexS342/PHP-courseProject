@@ -21,6 +21,10 @@ class BearerTokenAuthentication implements TokenAuthenticationInterface
         private UserRepositoryInterface $usersRepository,
     ) {
     }
+
+    /**
+     * @throws AuthException
+     */
     public function user(Request $request): User
     {
         // Получаем HTTP-заголовок

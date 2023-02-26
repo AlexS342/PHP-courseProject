@@ -20,8 +20,7 @@ use Alexs\PhpAdvanced\Http\Actions\Commits\DeleteCommitByUuid;
 use Alexs\PhpAdvanced\Http\Actions\Like\DeleteLikeByUuid;
 use Psr\Log\LoggerInterface;
 
-// Подключаем файл bootstrap.php
-// и получаем настроенный контейнер
+// Подключаем файл bootstrap.php и получаем настроенный контейнер
 $container = require __DIR__ . '/bootstrap.php';
 
 $request = new Request(
@@ -29,8 +28,10 @@ $request = new Request(
     $_SERVER,
     file_get_contents('php://input'),
 );
+
 // Получаем объект логгера из контейнера
 $logger = $container->get(LoggerInterface::class);
+
 try {
     $path = $request->path();
 } catch (HttpException $e) {
@@ -39,6 +40,7 @@ try {
     (new ErrorResponse)->send();
     return;
 }
+
 try {
     $method = $request->method();
 } catch (HttpException $e) {
@@ -47,6 +49,7 @@ try {
     (new ErrorResponse)->send();
     return;
 }
+
 // Ассоциируем маршруты с именами классов действий,
 // вместо готовых объектов
 $routes = [
@@ -58,7 +61,6 @@ $routes = [
         '/like/allShow' => FindAllLikeByPostUuid::class
     ],
     'POST' => [
-        // Добавили маршрут обмена пароля на токен
         '/login' => LogIn::class,
         '/user/create' => CreateUser::class,
         '/posts/create' => CreatePost::class,
@@ -79,21 +81,20 @@ if (!array_key_exists($method, $routes) || !array_key_exists($path, $routes[$met
     (new ErrorResponse($message))->send();
     return;
 }
+
 // Получаем имя класса действия для маршрута
 $actionClassName = $routes[$method][$path];
 
 //$logger->info("http.php запускает действие по маршруту $actionClassName");
-// С помощью контейнера
-// создаём объект нужного действия
+// С помощью контейнера создаём объект нужного действия
 $action = $container->get($actionClassName);
+
 try {
     $response = $action->handle($request);
 } catch (AppException $e) {
     // Логируем сообщение с уровнем ERROR
     $logger->error($e->getMessage(), ['exception' => $e]);
-    // Больше не отправляем пользователю
-    // конкретное сообщение об ошибке,
-    // а только логируем его
+    // Больше не отправляем пользователю конкретное сообщение об ошибке, а только логируем его
     (new ErrorResponse)->send();
     return;
 }
